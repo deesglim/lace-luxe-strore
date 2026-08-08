@@ -17,8 +17,8 @@
   --color-espresso: #3a2f2a;
 
   /* Brand typography */
-  --font-heading: var(--font-cormorant), "Playfair Display", serif;
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-playfair), "Playfair Display", serif;
+  --font-sans: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
