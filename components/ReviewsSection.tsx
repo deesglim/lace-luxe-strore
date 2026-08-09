@@ -1,6 +1,13 @@
+import ReviewSubmissionForm from "@/components/ReviewSubmissionForm";
 import type { Review } from "@/types";
 
-export default function ReviewsSection({ reviews }: { reviews: Review[] }) {
+export default function ReviewsSection({
+  reviews,
+  productId,
+}: {
+  reviews: Review[];
+  productId: string;
+}) {
   return (
     <section className="flex flex-col gap-8">
       <h2 className="font-heading text-2xl text-espresso">Reviews</h2>
@@ -32,6 +39,8 @@ export default function ReviewsSection({ reviews }: { reviews: Review[] }) {
           ))}
         </ul>
       )}
+
+      <ReviewSubmissionForm productId={productId} />
     </section>
   );
 }

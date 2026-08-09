@@ -55,6 +55,9 @@ export type Profile = {
   id: string;
   full_name: string | null;
   phone: string | null;
+  address_line: string | null;
+  city: string | null;
+  state: string | null;
   wholesale_status: "none" | "pending" | "approved";
   wholesale_discount_percent: number;
   is_admin: boolean;

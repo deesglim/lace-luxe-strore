@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCart } from "@/components/cart/CartProvider";
 import ProductGallery from "@/components/ProductGallery";
@@ -33,6 +34,7 @@ export default function ProductPurchaseFlow({
   productSlug: string;
   laceType: string | null;
 }) {
+  const router = useRouter();
   const { addItem } = useCart();
   const [selectedVariantId, setSelectedVariantId] = useState(variants[0]?.id);
   const selectedVariant =
@@ -88,6 +90,11 @@ export default function ProductPurchaseFlow({
       stockQuantity,
     );
     setQuantity(1);
+  }
+
+  function handleBuyNow() {
+    handleAddToCart();
+    router.push("/cart");
   }
 
   return (
@@ -201,9 +208,13 @@ export default function ProductPurchaseFlow({
         </button>
         <button
           type="button"
-          disabled
-          title="Checkout is coming in a future step"
-          className="flex-1 cursor-not-allowed rounded-md bg-bronze/40 px-6 py-3 font-sans text-sm uppercase tracking-[0.2em] text-ivory"
+          onClick={handleBuyNow}
+          disabled={!inStock}
+          className={`flex-1 rounded-md px-6 py-3 font-sans text-sm uppercase tracking-[0.2em] transition ${
+            inStock
+              ? "bg-bronze text-ivory hover:bg-bronze/90"
+              : "cursor-not-allowed border border-charcoal/20 bg-charcoal/5 text-charcoal/40"
+          }`}
         >
           Buy Now
         </button>

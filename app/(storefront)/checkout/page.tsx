@@ -1,4 +1,5 @@
 import CheckoutForm from "@/components/checkout/CheckoutForm";
+import { getCurrentProfile } from "@/lib/auth";
 import type { BundleOfferWithItems } from "@/lib/bundles";
 import { getActiveBundleOffersForCheckout } from "@/lib/bundleOffers";
 import { getActiveDeliveryOptions, getStoreSettings } from "@/lib/deliveryOptions";
@@ -28,6 +29,21 @@ export default async function CheckoutPage() {
     // the server still re-validates independently at submit time.
   }
 
+  // Logged-in customers get their contact/address fields pre-filled from
+  // their account — still editable/overridable for this specific order,
+  // never enforced.
+  const { user, profile } = await getCurrentProfile();
+  const initialCustomer = user
+    ? {
+        fullName: profile?.full_name ?? "",
+        email: user.email ?? "",
+        phone: profile?.phone ?? "",
+        addressLine: profile?.address_line ?? "",
+        city: profile?.city ?? "",
+        state: profile?.state ?? "",
+      }
+    : null;
+
   return (
     <CheckoutForm
       deliveryOptions={deliveryOptions}
@@ -35,6 +51,7 @@ export default async function CheckoutPage() {
       freeShippingThreshold={settings?.free_shipping_threshold ?? 0}
       promotions={promotions}
       bundles={bundles}
+      initialCustomer={initialCustomer}
     />
   );
 }

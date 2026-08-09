@@ -15,11 +15,6 @@ const sections = [
     label: "Promotions",
     description: "Coming soon.",
   },
-  {
-    href: "/admin/wholesale",
-    label: "Wholesale Applications",
-    description: "Coming soon.",
-  },
 ];
 
 export default async function AdminHomePage() {

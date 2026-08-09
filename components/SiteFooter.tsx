@@ -53,7 +53,6 @@ const quickLinks = [
   { href: "/shop", label: "Shop" },
   { href: "/our-story", label: "Our Story" },
   { href: "/size-guide", label: "Size Guide" },
-  { href: "/wholesale", label: "Wholesale" },
   { href: "/contact", label: "Contact Us" },
 ];
 

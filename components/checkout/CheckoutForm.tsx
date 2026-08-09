@@ -30,28 +30,40 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
+export type CheckoutInitialCustomer = {
+  fullName: string;
+  email: string;
+  phone: string;
+  addressLine: string;
+  city: string;
+  state: string;
+};
+
 export default function CheckoutForm({
   deliveryOptions,
   deliveryNotice,
   freeShippingThreshold,
   promotions,
   bundles,
+  initialCustomer,
 }: {
   deliveryOptions: DeliveryOption[];
   deliveryNotice: string | null;
   freeShippingThreshold: number;
   promotions: Promotion[];
   bundles: BundleOfferWithItems[];
+  initialCustomer: CheckoutInitialCustomer | null;
 }) {
   const router = useRouter();
   const { items, subtotal } = useCart();
+  const isLoggedIn = initialCustomer !== null;
 
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [addressLine, setAddressLine] = useState("");
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
+  const [fullName, setFullName] = useState(initialCustomer?.fullName ?? "");
+  const [email, setEmail] = useState(initialCustomer?.email ?? "");
+  const [phone, setPhone] = useState(initialCustomer?.phone ?? "");
+  const [addressLine, setAddressLine] = useState(initialCustomer?.addressLine ?? "");
+  const [city, setCity] = useState(initialCustomer?.city ?? "");
+  const [state, setState] = useState(initialCustomer?.state ?? "");
   const [createAccount, setCreateAccount] = useState(false);
   const [password, setPassword] = useState("");
   const [deliveryOptionId, setDeliveryOptionId] = useState<string | null>(null);
@@ -360,33 +372,45 @@ export default function CheckoutForm({
               </div>
             </div>
 
-            <div className="flex flex-col gap-3 border-t border-blush pt-6">
-              <label className="flex items-center gap-2 font-sans text-sm text-charcoal">
-                <input
-                  type="checkbox"
-                  checked={createAccount}
-                  onChange={(e) => setCreateAccount(e.target.checked)}
-                />
-                Create an account to track this order (optional)
-              </label>
-              {createAccount ? (
-                <Field label="Password">
-                  <input
-                    required
-                    type="password"
-                    minLength={6}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className={inputClass}
-                  />
-                </Field>
-              ) : (
-                <p className="font-sans text-xs text-charcoal/60">
-                  You&apos;ll check out as a guest — we&apos;ll email your
-                  receipt to the address above.
+            {!isLoggedIn && (
+              <div className="flex flex-col gap-3 border-t border-blush pt-6">
+                <p className="font-sans text-sm text-charcoal">
+                  Already have an account?{" "}
+                  <Link
+                    href="/login?redirect=/checkout"
+                    className="text-bronze underline underline-offset-4"
+                  >
+                    Log in
+                  </Link>
                 </p>
-              )}
-            </div>
+
+                <label className="flex items-center gap-2 font-sans text-sm text-charcoal">
+                  <input
+                    type="checkbox"
+                    checked={createAccount}
+                    onChange={(e) => setCreateAccount(e.target.checked)}
+                  />
+                  Create an account to track this order (optional)
+                </label>
+                {createAccount ? (
+                  <Field label="Password">
+                    <input
+                      required
+                      type="password"
+                      minLength={6}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className={inputClass}
+                    />
+                  </Field>
+                ) : (
+                  <p className="font-sans text-xs text-charcoal/60">
+                    You&apos;ll check out as a guest — we&apos;ll email your
+                    receipt to the address above.
+                  </p>
+                )}
+              </div>
+            )}
 
             <button
               type="submit"

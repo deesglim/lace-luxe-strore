@@ -124,6 +124,34 @@ export type AdminOrderSummary = {
   deliveryOptionName: string | null;
 };
 
+const ADMIN_ORDER_SELECT =
+  "id, status, payment_status, total, created_at, guest_email, shipping_address, delivery_options(name)";
+
+function mapAdminOrderRow(row: {
+  id: string;
+  status: Order["status"];
+  payment_status: Order["payment_status"];
+  total: number;
+  created_at: string;
+  guest_email: string | null;
+  shipping_address: unknown;
+  delivery_options: { name: string } | { name: string }[] | null;
+}): AdminOrderSummary {
+  const deliveryOption = toSingle(row.delivery_options);
+  const shippingAddress = row.shipping_address as ShippingAddress | null;
+
+  return {
+    id: row.id,
+    status: row.status,
+    payment_status: row.payment_status,
+    total: row.total,
+    created_at: row.created_at,
+    customerName: shippingAddress?.full_name ?? null,
+    customerEmail: row.guest_email,
+    deliveryOptionName: deliveryOption?.name ?? null,
+  };
+}
+
 /**
  * Admin-facing order list. Uses the cookie-bound client (not the service
  * role) so it relies on the "Admins have full access to orders" RLS policy
@@ -134,26 +162,53 @@ export async function getAllOrdersForAdmin(): Promise<AdminOrderSummary[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("orders")
-    .select(
-      "id, status, payment_status, total, created_at, guest_email, shipping_address, delivery_options(name)",
-    )
+    .select(ADMIN_ORDER_SELECT)
     .order("created_at", { ascending: false });
 
   if (error) throw error;
+  return (data ?? []).map(mapAdminOrderRow);
+}
 
-  return (data ?? []).map((row) => {
-    const deliveryOption = toSingle(row.delivery_options);
-    const shippingAddress = row.shipping_address as ShippingAddress | null;
+// Same admin-facing shape as getAllOrdersForAdmin, scoped to one customer —
+// backs the admin Customers -> order history drill-down.
+export async function getOrdersForCustomerAdmin(customerId: string): Promise<AdminOrderSummary[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("orders")
+    .select(ADMIN_ORDER_SELECT)
+    .eq("customer_id", customerId)
+    .order("created_at", { ascending: false });
 
-    return {
-      id: row.id,
-      status: row.status,
-      payment_status: row.payment_status,
-      total: row.total,
-      created_at: row.created_at,
-      customerName: shippingAddress?.full_name ?? null,
-      customerEmail: row.guest_email,
-      deliveryOptionName: deliveryOption?.name ?? null,
-    };
-  });
+  if (error) throw error;
+  return (data ?? []).map(mapAdminOrderRow);
+}
+
+export type CustomerOrderSummary = {
+  id: string;
+  status: Order["status"];
+  total: number;
+  created_at: string;
+};
+
+/**
+ * Customer-facing order list for /account. Explicitly scoped to the given
+ * customer id — deliberately NOT "trust RLS alone" like getAllOrdersForAdmin
+ * above. If the caller's session were ever misresolved as an admin (e.g. a
+ * session-identity bug upstream), the "Admins have full access to orders"
+ * policy would make an RLS-only query legitimately — and silently — return
+ * every customer's orders. The explicit filter means this query only ever
+ * asks Postgres for one customer's rows regardless of what role is asking,
+ * so the two layers (this filter, and RLS) are independent: either one
+ * failing alone still isn't enough to leak another customer's orders.
+ */
+export async function getOrdersForCustomer(customerId: string): Promise<CustomerOrderSummary[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("orders")
+    .select("id, status, total, created_at")
+    .eq("customer_id", customerId)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data ?? [];
 }

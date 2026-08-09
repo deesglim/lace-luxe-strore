@@ -29,6 +29,13 @@ export async function createClient() {
           }
         },
       },
+      // Next.js's fetch patch caches GET requests by default. Without this,
+      // auth.getUser()'s call to /auth/v1/user can get swept into that cache
+      // and served stale for a *different* signed-in user on a later
+      // request — session-scoped data must never be cached.
+      global: {
+        fetch: (input, init) => fetch(input, { ...init, cache: "no-store" }),
+      },
     },
   );
 }

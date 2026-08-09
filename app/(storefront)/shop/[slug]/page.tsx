@@ -2,7 +2,6 @@ import Link from "next/link";
 import ProductPurchaseFlow from "@/components/ProductPurchaseFlow";
 import ProductRecommendations from "@/components/ProductRecommendations";
 import { WhyChooseList, WhyNotChooseList } from "@/components/ProductWhyLists";
-import RatingBreakdown from "@/components/RatingBreakdown";
 import ReviewsSection from "@/components/ReviewsSection";
 import {
   getApprovedReviews,
@@ -122,8 +121,7 @@ export default async function ProductDetailPage({
         className="mx-auto mt-16 w-full max-w-2xl border-t border-blush pt-12"
       >
         <div className="flex flex-col gap-10">
-          <RatingBreakdown reviews={reviews} />
-          <ReviewsSection reviews={reviews} />
+          <ReviewsSection reviews={reviews} productId={product.id} />
         </div>
       </div>
     </main>

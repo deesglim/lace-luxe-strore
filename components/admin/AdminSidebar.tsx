@@ -9,11 +9,13 @@ const links = [
   { href: "/admin/homepage", label: "Homepage" },
   { href: "/admin/products", label: "Products" },
   { href: "/admin/orders", label: "Orders" },
+  { href: "/admin/customers", label: "Customers" },
   { href: "/admin/delivery", label: "Delivery" },
   { href: "/admin/promotions", label: "Promotions" },
   { href: "/admin/bundles", label: "Bundles" },
   { href: "/admin/newsletter", label: "Newsletter" },
-  { href: "/admin/wholesale", label: "Wholesale Applications" },
+  { href: "/admin/reviews", label: "Reviews" },
+  { href: "/admin/showcase", label: "Showcase" },
 ];
 
 export default function AdminSidebar() {

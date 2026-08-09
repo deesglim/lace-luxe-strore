@@ -7,3 +7,11 @@ export function getProductImageStoragePath(publicUrl: string): string | null {
   if (index === -1) return null;
   return publicUrl.slice(index + PUBLIC_URL_MARKER.length);
 }
+
+const SHOWCASE_PUBLIC_URL_MARKER = "/storage/v1/object/public/customer-showcase/";
+
+export function getShowcaseMediaStoragePath(publicUrl: string): string | null {
+  const index = publicUrl.indexOf(SHOWCASE_PUBLIC_URL_MARKER);
+  if (index === -1) return null;
+  return publicUrl.slice(index + SHOWCASE_PUBLIC_URL_MARKER.length);
+}

@@ -1,5 +1,6 @@
 import BestSellersSection from "@/components/BestSellersSection";
 import CategorySection from "@/components/CategorySection";
+import CustomerShowcaseSection from "@/components/CustomerShowcaseSection";
 import HomeHero from "@/components/HomeHero";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import OffersTeaser from "@/components/OffersTeaser";
@@ -16,6 +17,8 @@ import {
   type ProductCategoryCard,
   type ProductSummary,
 } from "@/lib/products";
+import { getActiveShowcaseItemsForHomepage } from "@/lib/showcase";
+import type { ShowcaseItem } from "@/lib/showcase";
 import type { StoreSettings } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -60,6 +63,13 @@ export default async function Home() {
     reviews = [];
   }
 
+  let showcaseItems: ShowcaseItem[] = [];
+  try {
+    showcaseItems = await getActiveShowcaseItemsForHomepage();
+  } catch {
+    showcaseItems = [];
+  }
+
   return (
     <main className="flex flex-1 flex-col bg-ivory">
       <HomeHero
@@ -69,8 +79,9 @@ export default async function Home() {
       />
       <CategorySection categories={categories} />
       <BestSellersSection products={products} />
-      <TestimonialsSection reviews={reviews} />
       <OffersTeaser offers={offers} />
+      <TestimonialsSection reviews={reviews} />
+      <CustomerShowcaseSection items={showcaseItems} />
       <TrustBadges />
       <NewsletterSignup />
     </main>
