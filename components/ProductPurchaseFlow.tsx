@@ -23,6 +23,7 @@ export default function ProductPurchaseFlow({
   productName,
   productId,
   productSlug,
+  laceType,
 }: {
   variants: VariantDetail[];
   reviews: Review[];
@@ -30,6 +31,7 @@ export default function ProductPurchaseFlow({
   productName: string;
   productId: string;
   productSlug: string;
+  laceType: string | null;
 }) {
   const { addItem } = useCart();
   const [selectedVariantId, setSelectedVariantId] = useState(variants[0]?.id);
@@ -81,6 +83,7 @@ export default function ProductPurchaseFlow({
         image: images[0] ?? null,
         price: selectedVariant.price,
         quantity,
+        laceType,
       },
       stockQuantity,
     );
@@ -163,7 +166,7 @@ export default function ProductPurchaseFlow({
         <button
           type="button"
           onClick={() => setQuantity((qty) => Math.max(1, qty - 1))}
-          className="h-9 w-9 rounded-md border border-charcoal/20 font-sans text-sm text-charcoal transition hover:border-bronze hover:text-bronze"
+          className="h-10 w-10 rounded-md border border-charcoal/20 font-sans text-sm text-charcoal transition hover:border-bronze hover:text-bronze"
           aria-label="Decrease quantity"
         >
           −
@@ -176,7 +179,7 @@ export default function ProductPurchaseFlow({
           onClick={() =>
             setQuantity((qty) => Math.min(Math.max(stockQuantity, 1), qty + 1))
           }
-          className="h-9 w-9 rounded-md border border-charcoal/20 font-sans text-sm text-charcoal transition hover:border-bronze hover:text-bronze"
+          className="h-10 w-10 rounded-md border border-charcoal/20 font-sans text-sm text-charcoal transition hover:border-bronze hover:text-bronze"
           aria-label="Increase quantity"
         >
           +

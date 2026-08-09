@@ -6,9 +6,13 @@ import SignOutButton from "@/components/admin/SignOutButton";
 
 const links = [
   { href: "/admin", label: "Dashboard" },
+  { href: "/admin/homepage", label: "Homepage" },
   { href: "/admin/products", label: "Products" },
   { href: "/admin/orders", label: "Orders" },
+  { href: "/admin/delivery", label: "Delivery" },
   { href: "/admin/promotions", label: "Promotions" },
+  { href: "/admin/bundles", label: "Bundles" },
+  { href: "/admin/newsletter", label: "Newsletter" },
   { href: "/admin/wholesale", label: "Wholesale Applications" },
 ];
 

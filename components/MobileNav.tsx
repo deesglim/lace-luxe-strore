@@ -78,7 +78,7 @@ export default function MobileNav({ links }: { links: NavLink[] }) {
                   type="button"
                   onClick={() => setIsOpen(false)}
                   aria-label="Close menu"
-                  className="flex h-8 w-8 items-center justify-center rounded-md text-charcoal/60 transition hover:bg-blush/50 hover:text-espresso"
+                  className="flex h-10 w-10 items-center justify-center rounded-md text-charcoal/60 transition hover:bg-blush/50 hover:text-espresso"
                 >
                   ✕
                 </button>

@@ -87,7 +87,7 @@ export default async function ProductDetailPage({
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-8">
         <div>
           {product.lace_type && (
-            <p className="font-sans text-xs uppercase tracking-[0.2em] text-bronze">
+            <p className="font-sans text-xs uppercase tracking-[0.3em] text-bronze">
               {product.lace_type}
             </p>
           )}
@@ -109,6 +109,7 @@ export default async function ProductDetailPage({
           productName={product.name}
           productId={product.id}
           productSlug={product.slug}
+          laceType={product.lace_type}
         />
 
         <WhyChooseList points={product.why_choose} />

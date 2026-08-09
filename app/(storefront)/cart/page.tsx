@@ -1,19 +1,26 @@
 "use client";
 
 import Link from "next/link";
+import BundleCartGroup from "@/components/cart/BundleCartGroup";
 import CartLineItem from "@/components/cart/CartLineItem";
 import { useCart } from "@/components/cart/CartProvider";
 import { useValidateCartStock } from "@/components/cart/useValidateCartStock";
+import FreeShippingProgress from "@/components/cart/FreeShippingProgress";
+import UpsellProducts from "@/components/cart/UpsellProducts";
+import { calculateGroupedSubtotal, groupCartItems } from "@/lib/cartGrouping";
 import { formatNaira } from "@/lib/format";
 
 export default function CartPage() {
-  const { items, subtotal } = useCart();
+  const { items } = useCart();
   const notices = useValidateCartStock(true);
+  const groupedSubtotal = calculateGroupedSubtotal(items);
 
   return (
     <main className="flex min-h-screen flex-1 flex-col bg-ivory px-6 py-20">
       <div className="mx-auto w-full max-w-3xl">
         <h1 className="mb-10 font-heading text-3xl text-espresso">Your Cart</h1>
+
+        <FreeShippingProgress className="mb-6" />
 
         {notices.length > 0 && (
           <div className="mb-6 flex flex-col gap-1 rounded-md border border-blush bg-blush/30 px-4 py-3">
@@ -40,18 +47,27 @@ export default function CartPage() {
         ) : (
           <div className="flex flex-col gap-8">
             <div className="flex flex-col divide-y divide-blush">
-              {items.map((item) => (
-                <div key={item.id} className="py-6 first:pt-0">
-                  <CartLineItem item={item} />
+              {groupCartItems(items).map((group) => (
+                <div
+                  key={group.kind === "bundle" ? group.bundleOfferId : group.item.id}
+                  className="py-6 first:pt-0"
+                >
+                  {group.kind === "bundle" ? (
+                    <BundleCartGroup group={group} />
+                  ) : (
+                    <CartLineItem item={group.item} />
+                  )}
                 </div>
               ))}
             </div>
+
+            <UpsellProducts />
 
             <div className="flex flex-col gap-4 border-t border-blush pt-6">
               <div className="flex items-center justify-between font-sans text-base text-charcoal">
                 <span>Subtotal</span>
                 <span className="font-heading text-xl text-espresso">
-                  {formatNaira(subtotal)}
+                  {formatNaira(groupedSubtotal)}
                 </span>
               </div>
               <Link

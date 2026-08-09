@@ -18,6 +18,13 @@ export type AddToCartInput = Omit<CartItem, "id" | "quantity"> & {
   quantity: number;
 };
 
+export type AddBundleItemInput = Omit<AddToCartInput, "bundleOfferId" | "bundleName" | "bundleImage" | "bundlePriceSnapshot"> & {
+  // This item's quantity_required for ONE set of the bundle — CartProvider
+  // tags every item with this plus the bundle's own metadata so the cart
+  // can group and price them without re-fetching bundle data later.
+  bundleUnitQuantity: number;
+};
+
 type CartContextValue = {
   items: CartItem[];
   itemCount: number;
@@ -26,8 +33,17 @@ type CartContextValue = {
   openDrawer: () => void;
   closeDrawer: () => void;
   addItem: (input: AddToCartInput, availableStock: number) => void;
+  addBundleItems: (bundle: {
+    bundleOfferId: string;
+    bundleName: string;
+    bundleImage: string | null;
+    bundlePrice: number;
+    items: AddBundleItemInput[];
+  }) => void;
   updateQuantity: (lineId: string, quantity: number, availableStock?: number) => void;
   removeItem: (lineId: string) => void;
+  removeBundleGroup: (bundleOfferId: string) => void;
+  clearCart: () => void;
   toastMessage: string | null;
 };
 
@@ -120,6 +136,51 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setToastMessage(message);
   }
 
+  // Adds every item from a bundle offer in one atomic update (one setItems
+  // call, one toast) rather than looping addItem — a bundle is "all these
+  // exact items or nothing," and the offer detail page already checked
+  // stock for all of them before enabling the button, so there's no
+  // per-item capping to do here the way addItem does for a single product.
+  // Every item gets tagged with the bundle's metadata so the cart can group
+  // and price them as one card later (see lib/cartGrouping.ts).
+  function addBundleItems(bundle: {
+    bundleOfferId: string;
+    bundleName: string;
+    bundleImage: string | null;
+    bundlePrice: number;
+    items: AddBundleItemInput[];
+  }) {
+    setItems((current) => {
+      let next = current;
+      for (const { bundleUnitQuantity, ...rawInput } of bundle.items) {
+        const input: AddToCartInput = {
+          ...rawInput,
+          bundleOfferId: bundle.bundleOfferId,
+          bundleName: bundle.bundleName,
+          bundleImage: bundle.bundleImage,
+          bundleUnitQuantity,
+          bundlePriceSnapshot: bundle.bundlePrice,
+        };
+        const lineId = lineIdFor(input.variantId, input.colorId);
+        const existingIndex = next.findIndex((item) => item.id === lineId);
+        const desiredQty =
+          (existingIndex >= 0 ? next[existingIndex].quantity : 0) + input.quantity;
+
+        next =
+          existingIndex >= 0
+            ? next.map((item, index) =>
+                index === existingIndex
+                  ? { ...item, ...input, id: item.id, quantity: desiredQty }
+                  : item,
+              )
+            : [...next, { ...input, id: lineId, quantity: desiredQty }];
+      }
+      return next;
+    });
+
+    setToastMessage(`Added "${bundle.bundleName}" to cart`);
+  }
+
   function updateQuantity(
     lineId: string,
     quantity: number,
@@ -136,6 +197,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   function removeItem(lineId: string) {
     setItems((current) => current.filter((item) => item.id !== lineId));
+  }
+
+  function removeBundleGroup(bundleOfferId: string) {
+    setItems((current) => current.filter((item) => item.bundleOfferId !== bundleOfferId));
+  }
+
+  function clearCart() {
+    setItems([]);
   }
 
   const itemCount = useMemo(
@@ -155,8 +224,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     openDrawer: () => setIsDrawerOpen(true),
     closeDrawer: () => setIsDrawerOpen(false),
     addItem,
+    addBundleItems,
     updateQuantity,
     removeItem,
+    removeBundleGroup,
+    clearCart,
     toastMessage,
   };
 

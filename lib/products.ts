@@ -24,7 +24,7 @@ const VARIANT_WITH_COLORS_FIELDS =
 
 export type ProductSummary = Pick<
   Product,
-  "id" | "name" | "slug" | "lace_type" | "images"
+  "id" | "name" | "slug" | "lace_type" | "images" | "is_best_seller"
 > & {
   product_variants: VariantSummary[];
 };
@@ -37,7 +37,7 @@ export async function getActiveProducts(): Promise<ProductSummary[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("products")
-    .select("id, name, slug, lace_type, images, product_variants(price)")
+    .select("id, name, slug, lace_type, images, is_best_seller, product_variants(price)")
     .eq("active", true)
     .order("created_at", { ascending: false });
 
@@ -52,7 +52,7 @@ export async function getProductBySlug(
   const { data, error } = await supabase
     .from("products")
     .select(
-      `id, name, slug, description, lace_type, images, active, why_choose, why_not_choose, created_at, product_variants(${VARIANT_WITH_COLORS_FIELDS})`,
+      `id, name, slug, description, lace_type, images, active, is_best_seller, why_choose, why_not_choose, created_at, product_variants(${VARIANT_WITH_COLORS_FIELDS})`,
     )
     .eq("slug", slug)
     .eq("active", true)
@@ -73,6 +73,49 @@ export async function getApprovedReviews(productId: string): Promise<Review[]> {
 
   if (error) throw error;
   return data ?? [];
+}
+
+export type FeaturedReview = {
+  id: string;
+  customerName: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+  productName: string;
+  productSlug: string;
+};
+
+// Top approved reviews across the whole catalog, best rating first (ties
+// broken by recency) — for the homepage testimonials section. limit=8
+// means "fewer than 3 approved reviews total" (the caller's hide-section
+// threshold) is just `results.length < 3`, no separate count query needed.
+export async function getFeaturedReviews(limit = 8): Promise<FeaturedReview[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("reviews")
+    .select("id, customer_name, rating, comment, created_at, products(name, slug)")
+    .eq("approved", true)
+    .order("rating", { ascending: false })
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+
+  return (data ?? [])
+    .map((row) => {
+      const product = Array.isArray(row.products) ? row.products[0] : row.products;
+      if (!product) return null;
+      return {
+        id: row.id,
+        customerName: row.customer_name,
+        rating: row.rating,
+        comment: row.comment,
+        createdAt: row.created_at,
+        productName: product.name,
+        productSlug: product.slug,
+      };
+    })
+    .filter((review): review is FeaturedReview => review !== null);
 }
 
 export type AdminProductSummary = Pick<
@@ -102,7 +145,7 @@ export async function getProductByIdForAdmin(
   const { data, error } = await supabase
     .from("products")
     .select(
-      `id, name, slug, description, lace_type, images, active, why_choose, why_not_choose, created_at, product_variants(${VARIANT_WITH_COLORS_FIELDS})`,
+      `id, name, slug, description, lace_type, images, active, is_best_seller, why_choose, why_not_choose, created_at, product_variants(${VARIANT_WITH_COLORS_FIELDS})`,
     )
     .eq("id", id)
     .maybeSingle();
@@ -177,4 +220,82 @@ export async function getProductOptionsForAdmin(): Promise<
 
   if (error) throw error;
   return data ?? [];
+}
+
+export type ProductVariantOption = {
+  id: string;
+  name: string;
+  product_variants: (Pick<ProductVariant, "id" | "size_label" | "price"> & {
+    product_variant_colors: Pick<ProductVariantColor, "id" | "color_name">[];
+  })[];
+};
+
+// Full size/color tree per product, for the admin bundle item picker's
+// cascading Product -> Size -> Color dropdowns. Lean on purpose (no stock,
+// sku, images) — the picker only needs enough to identify an exact variant
+// and show its price for the "original combined price" preview.
+export async function getProductsWithVariantsForAdmin(): Promise<ProductVariantOption[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select(
+      "id, name, product_variants(id, size_label, price, product_variant_colors(id, color_name))",
+    )
+    .order("name", { ascending: true });
+
+  if (error) throw error;
+  return data ?? [];
+}
+
+export type ProductCategoryCard = {
+  laceType: string;
+  representativeImage: string | null;
+};
+
+// One card per distinct lace_type among active products, for the
+// homepage's "Shop by Category" section — each card's image is the most
+// recently created active product in that category (query is already
+// newest-first, so the first row seen per lace_type wins).
+export async function getProductCategoriesForShop(): Promise<ProductCategoryCard[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select("lace_type, images")
+    .eq("active", true)
+    .not("lace_type", "is", null)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+
+  const seen = new Map<string, string | null>();
+  for (const row of data ?? []) {
+    if (!row.lace_type || seen.has(row.lace_type)) continue;
+    seen.set(row.lace_type, row.images?.[0] ?? null);
+  }
+
+  return Array.from(seen.entries()).map(([laceType, representativeImage]) => ({
+    laceType,
+    representativeImage,
+  }));
+}
+
+// Distinct lace_type values across all products — populates the "category"
+// scope dropdown when setting up a category-scoped promotion. lace_type is
+// free text (no separate categories table), so this is just the unique set
+// of whatever values are actually in use.
+export async function getDistinctLaceTypes(): Promise<string[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select("lace_type")
+    .not("lace_type", "is", null);
+
+  if (error) throw error;
+
+  const unique = new Set(
+    (data ?? [])
+      .map((row) => row.lace_type)
+      .filter((value): value is string => Boolean(value)),
+  );
+  return Array.from(unique).sort();
 }

@@ -3,14 +3,19 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import BundleCartGroup from "@/components/cart/BundleCartGroup";
 import CartLineItem from "@/components/cart/CartLineItem";
 import { useCart } from "@/components/cart/CartProvider";
 import { useValidateCartStock } from "@/components/cart/useValidateCartStock";
+import FreeShippingProgress from "@/components/cart/FreeShippingProgress";
+import UpsellProducts from "@/components/cart/UpsellProducts";
+import { calculateGroupedSubtotal, groupCartItems } from "@/lib/cartGrouping";
 import { formatNaira } from "@/lib/format";
 
 export default function CartDrawer() {
-  const { items, isDrawerOpen, closeDrawer, subtotal } = useCart();
+  const { items, isDrawerOpen, closeDrawer } = useCart();
   const notices = useValidateCartStock(isDrawerOpen);
+  const groupedSubtotal = calculateGroupedSubtotal(items);
 
   // Portal to document.body so this overlay's fixed positioning is always
   // relative to the viewport — nesting it in the normal tree risks a
@@ -65,11 +70,13 @@ export default function CartDrawer() {
             type="button"
             onClick={closeDrawer}
             aria-label="Close cart"
-            className="flex h-8 w-8 items-center justify-center rounded-md font-sans text-charcoal/60 transition hover:bg-blush/50 hover:text-espresso"
+            className="flex h-10 w-10 items-center justify-center rounded-md font-sans text-charcoal/60 transition hover:bg-blush/50 hover:text-espresso"
           >
             ✕
           </button>
         </div>
+
+        <FreeShippingProgress className="mx-6 mt-5" />
 
         {notices.length > 0 && (
           <div className="flex shrink-0 flex-col gap-1 border-b border-blush bg-blush/30 px-6 py-3">
@@ -98,9 +105,17 @@ export default function CartDrawer() {
           <>
             <div className="flex-1 overflow-y-auto px-6 py-5">
               <div className="flex flex-col gap-6">
-                {items.map((item) => (
-                  <CartLineItem key={item.id} item={item} compact />
-                ))}
+                {groupCartItems(items).map((group) =>
+                  group.kind === "bundle" ? (
+                    <BundleCartGroup key={group.bundleOfferId} group={group} compact />
+                  ) : (
+                    <CartLineItem key={group.item.id} item={group.item} compact />
+                  ),
+                )}
+              </div>
+
+              <div className="mt-8 border-t border-blush pt-6">
+                <UpsellProducts compact />
               </div>
             </div>
 
@@ -108,7 +123,7 @@ export default function CartDrawer() {
               <div className="mb-4 flex items-center justify-between font-sans text-sm text-charcoal">
                 <span>Subtotal</span>
                 <span className="font-heading text-lg text-espresso">
-                  {formatNaira(subtotal)}
+                  {formatNaira(groupedSubtotal)}
                 </span>
               </div>
               <div className="flex flex-col gap-2">

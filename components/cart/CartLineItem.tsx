@@ -41,12 +41,12 @@ export default function CartLineItem({
         )}
       </Link>
 
-      <div className="flex flex-1 flex-col gap-1">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="flex items-start justify-between gap-2">
-          <div>
+          <div className="min-w-0">
             <Link
               href={`/shop/${item.productSlug}`}
-              className="font-sans text-sm text-espresso hover:underline"
+              className="block truncate font-sans text-sm text-espresso hover:underline"
             >
               {item.name}
             </Link>
@@ -55,7 +55,7 @@ export default function CartLineItem({
               {item.colorName ? ` · ${item.colorName}` : ""}
             </p>
           </div>
-          <p className="font-sans text-sm text-charcoal">
+          <p className="shrink-0 whitespace-nowrap font-sans text-sm text-charcoal">
             {formatNaira(item.price)}
           </p>
         </div>
@@ -65,7 +65,7 @@ export default function CartLineItem({
             <button
               type="button"
               onClick={() => updateQuantity(item.id, item.quantity - 1)}
-              className="h-7 w-7 rounded-md border border-charcoal/20 font-sans text-xs text-charcoal transition hover:border-bronze hover:text-bronze"
+              className="h-9 w-9 rounded-md border border-charcoal/20 font-sans text-xs text-charcoal transition hover:border-bronze hover:text-bronze"
               aria-label="Decrease quantity"
             >
               −
@@ -76,7 +76,7 @@ export default function CartLineItem({
             <button
               type="button"
               onClick={() => updateQuantity(item.id, item.quantity + 1)}
-              className="h-7 w-7 rounded-md border border-charcoal/20 font-sans text-xs text-charcoal transition hover:border-bronze hover:text-bronze"
+              className="h-9 w-9 rounded-md border border-charcoal/20 font-sans text-xs text-charcoal transition hover:border-bronze hover:text-bronze"
               aria-label="Increase quantity"
             >
               +

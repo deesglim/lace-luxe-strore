@@ -145,6 +145,7 @@ export default function ProductForm({
   const [description, setDescription] = useState(product?.description ?? "");
   const [laceType, setLaceType] = useState(product?.lace_type ?? "");
   const [active, setActive] = useState(product?.active ?? true);
+  const [isBestSeller, setIsBestSeller] = useState(product?.is_best_seller ?? false);
   const [folderId] = useState(() => product?.id ?? crypto.randomUUID());
   const [images, setImages] = useState<ImageItem[]>(
     product?.images.map((url) => ({ key: url, kind: "existing", url })) ?? [],
@@ -369,6 +370,7 @@ export default function ProductForm({
         description: description || null,
         lace_type: laceType || null,
         active,
+        is_best_seller: isBestSeller,
         images: imageUrls,
         why_choose: whyChoose.map((point) => point.trim()).filter(Boolean),
         why_not_choose: whyNotChoose.map((point) => point.trim()).filter(Boolean),
@@ -619,6 +621,15 @@ export default function ProductForm({
             onChange={(e) => setActive(e.target.checked)}
           />
           Active (visible in the shop)
+        </label>
+
+        <label className="flex items-center gap-2 font-sans text-sm text-charcoal">
+          <input
+            type="checkbox"
+            checked={isBestSeller}
+            onChange={(e) => setIsBestSeller(e.target.checked)}
+          />
+          Mark as Best Seller
         </label>
       </div>
 
