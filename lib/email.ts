@@ -461,3 +461,64 @@ export async function sendWelcomeEmail(params: { toEmail: string }): Promise<voi
     html: buildWelcomeEmailHtml(),
   });
 }
+
+// Internal, not customer-facing — same plainer shell as the admin order
+// notification email.
+function buildContactFormNotificationHtml(params: {
+  name: string;
+  email: string;
+  message: string;
+}): string {
+  return `
+  <div style="background-color: #f7f3ee; padding: 40px 20px; font-family: Arial, sans-serif;">
+    <div style="max-width: 480px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e7d3c8;">
+      <div style="padding: 32px 24px;">
+        <p style="color: #2b2b2b; font-size: 14px; line-height: 1.6; margin: 0 0 20px;">
+          Hey Dee,
+        </p>
+        <p style="color: #2b2b2b; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">
+          Someone just sent a message through the Contact Us page.
+        </p>
+
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse; margin-bottom: 24px;">
+          <tr>
+            <td style="padding: 4px 0; color: #9c6b3f; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em;">Name</td>
+            <td style="padding: 4px 0; color: #3a2f2a; font-size: 14px; text-align: right;">${params.name}</td>
+          </tr>
+          <tr>
+            <td style="padding: 4px 0; color: #9c6b3f; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em;">Email</td>
+            <td style="padding: 4px 0; color: #3a2f2a; font-size: 14px; text-align: right;">${params.email}</td>
+          </tr>
+        </table>
+
+        <p style="color: #9c6b3f; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 8px;">
+          Message
+        </p>
+        <p style="color: #2b2b2b; font-size: 14px; line-height: 1.6; margin: 0 0 24px; white-space: pre-wrap;">${params.message}</p>
+
+        <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e7d3c8;">
+          <p style="color: #2b2b2b; font-size: 13px; line-height: 1.6; margin: 0;">
+            Just reply to this email to respond directly to them.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  `;
+}
+
+export async function sendContactFormNotificationEmail(params: {
+  name: string;
+  email: string;
+  message: string;
+}): Promise<void> {
+  const resend = getResendClient();
+
+  await resend.emails.send({
+    from: `Lace Luxe by Dee <${getFromEmail()}>`,
+    to: getAdminNotificationEmail(),
+    replyTo: params.email,
+    subject: `New Contact Form Message from ${params.name}`,
+    html: buildContactFormNotificationHtml(params),
+  });
+}

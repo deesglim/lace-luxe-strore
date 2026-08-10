@@ -1,53 +1,5 @@
 import Link from "next/link";
-
-// Same "hand-drawn, no icon library" convention as TrustBadges — simplified
-// monoline glyphs standing in for each platform rather than exact brand
-// marks.
-function InstagramIcon() {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.4} className="h-5 w-5">
-      <rect x="3" y="3" width="14" height="14" rx="4" />
-      <circle cx="10" cy="10" r="3.2" />
-      <circle cx="14.2" cy="5.8" r="0.6" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-
-function TikTokIcon() {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.4} className="h-5 w-5">
-      <circle cx="8.5" cy="13.5" r="3" />
-      <path d="M11.5 3v10.5" strokeLinecap="round" />
-      <path d="M11.5 3c0 2.7 2 4.7 4.5 4.9" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function YouTubeIcon() {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.4} className="h-5 w-5">
-      <rect x="2.5" y="5" width="15" height="10" rx="3" />
-      <path d="M8.5 8l4 2-4 2V8z" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-
-function FacebookIcon() {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.4} className="h-5 w-5">
-      <circle cx="10" cy="10" r="7.2" />
-      <path d="M11.6 6.5h-1.2c-.9 0-1.4.5-1.4 1.4V9.3H11l-.3 2H9V16" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-// Placeholders — swap for the real profile URLs when available.
-const socialLinks = [
-  { name: "Instagram", href: "https://instagram.com", Icon: InstagramIcon },
-  { name: "TikTok", href: "https://tiktok.com", Icon: TikTokIcon },
-  { name: "YouTube", href: "https://youtube.com", Icon: YouTubeIcon },
-  { name: "Facebook", href: "https://facebook.com", Icon: FacebookIcon },
-];
+import { socialLinks } from "@/components/SocialLinks";
 
 const quickLinks = [
   { href: "/shop", label: "Shop" },
@@ -56,52 +8,111 @@ const quickLinks = [
   { href: "/contact", label: "Contact Us" },
 ];
 
+const policyLinks = [
+  { href: "/shipping-info", label: "Shipping Information" },
+  { href: "/returns-refunds", label: "Returns & Refunds" },
+  { href: "/faq", label: "FAQ" },
+  { href: "/terms-conditions", label: "Terms & Conditions" },
+];
+
+// Same address used on the Contact page's "Reach us directly" panel, and
+// the same WhatsApp number encoded in SocialLinks' wa.me link.
+const CONTACT_EMAIL = "deesglimorders@gmail.com";
+const CONTACT_PHONE_DISPLAY = "+234 916 491 3966";
+const CONTACT_PHONE_TEL = "+2349164913966";
+
+function FooterColumnHeading({ children }: { children: string }) {
+  return (
+    <span className="font-sans text-[10px] font-medium uppercase tracking-brand text-bronze sm:text-xs md:text-nav">
+      {children}
+    </span>
+  );
+}
+
 export default function SiteFooter() {
   return (
-    <footer className="bg-espresso px-6 py-12 sm:px-12">
-      <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-10 text-center sm:flex-row sm:items-start sm:justify-between sm:text-left">
-        <div className="flex flex-col items-center gap-3 sm:items-start">
-          <Link href="/" className="font-heading text-xl italic text-ivory">
-            Lace Luxe <span className="text-bronze">by Dee</span>
-          </Link>
-          <p className="font-sans text-xs text-ivory/60">
-            Port Harcourt, Rivers State, Nigeria
-          </p>
-          <div className="flex gap-3">
-            {socialLinks.map(({ name, href, Icon }) => (
-              <a
-                key={name}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={name}
-                className="text-ivory/70 transition hover:text-bronze"
+    <footer className="bg-espresso text-ivory">
+      <div className="mx-auto w-full max-w-page px-6 py-section sm:px-12 md:py-section-md lg:py-section-lg">
+        {/*
+          Always a 4-column row, at every breakpoint — never stacks, never
+          scrolls. Text/icon size and gaps shrink progressively on narrower
+          screens instead, so all four columns stay on screen without
+          horizontal overflow.
+        */}
+        <div className="grid grid-cols-4 gap-2 text-left sm:gap-4 md:gap-6 lg:gap-10">
+          <div className="flex min-w-0 flex-col items-start gap-1.5 sm:gap-3">
+            <Link
+              href="/"
+              className="font-logo text-sm font-semibold text-ivory sm:text-lg md:text-2xl"
+            >
+              Lace Luxe <span className="text-bronze">by Dee</span>
+            </Link>
+            <p className="font-sans text-[10px] text-ivory/60 sm:text-xs md:text-sm">
+              Port Harcourt, Rivers State, Nigeria
+            </p>
+            <div className="flex gap-1.5 sm:gap-3">
+              {socialLinks.map(({ name, href, Icon }) => (
+                <a
+                  key={name}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={name}
+                  className="text-ivory/70 transition hover:text-bronze [&>svg]:h-3.5 [&>svg]:w-3.5 sm:[&>svg]:h-4 sm:[&>svg]:w-4 md:[&>svg]:h-5 md:[&>svg]:w-5"
+                >
+                  <Icon />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <nav className="flex min-w-0 flex-col items-start gap-1.5 sm:gap-3">
+            <FooterColumnHeading>Quick Links</FooterColumnHeading>
+            {quickLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="font-sans text-[10px] text-ivory/70 transition hover:text-ivory sm:text-xs md:text-sm"
               >
-                <Icon />
-              </a>
+                {link.label}
+              </Link>
             ))}
+          </nav>
+
+          <nav className="flex min-w-0 flex-col items-start gap-1.5 sm:gap-3">
+            <FooterColumnHeading>Policies</FooterColumnHeading>
+            {policyLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="font-sans text-[10px] text-ivory/70 transition hover:text-ivory sm:text-xs md:text-sm"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="flex min-w-0 flex-col items-start gap-1.5 sm:gap-3">
+            <FooterColumnHeading>Contact</FooterColumnHeading>
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="break-words font-sans text-[10px] text-ivory/70 transition hover:text-ivory sm:text-xs md:text-sm"
+            >
+              {CONTACT_EMAIL}
+            </a>
+            <a
+              href={`tel:${CONTACT_PHONE_TEL}`}
+              className="font-sans text-[10px] text-ivory/70 transition hover:text-ivory sm:text-xs md:text-sm"
+            >
+              {CONTACT_PHONE_DISPLAY}
+            </a>
           </div>
         </div>
 
-        <nav className="flex flex-col items-center gap-2 sm:items-start">
-          <span className="font-sans text-xs uppercase tracking-[0.2em] text-bronze">
-            Quick Links
-          </span>
-          {quickLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="font-sans text-sm text-ivory/70 transition hover:text-ivory"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
+        <p className="mt-12 text-center font-sans text-xs text-ivory/40 lg:mt-16">
+          © {new Date().getFullYear()} Lace Luxe by Dee. All rights reserved.
+        </p>
       </div>
-
-      <p className="mt-10 text-center font-sans text-xs text-ivory/40">
-        © {new Date().getFullYear()} Lace Luxe by Dee. All rights reserved.
-      </p>
     </footer>
   );
 }

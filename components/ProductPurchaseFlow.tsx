@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCart } from "@/components/cart/CartProvider";
-import ProductGallery from "@/components/ProductGallery";
 import StarRatingSummary from "@/components/StarRatingSummary";
 import { formatNaira } from "@/lib/format";
 import type { ProductVariant, ProductVariantColor, Review } from "@/types";
@@ -12,7 +11,7 @@ import type { ProductVariant, ProductVariantColor, Review } from "@/types";
 type ColorDetail = Pick<ProductVariantColor, "id" | "color_name" | "stock_quantity">;
 type VariantDetail = Pick<
   ProductVariant,
-  "id" | "size_label" | "price" | "stock_quantity" | "sku"
+  "id" | "size_label" | "price" | "compare_at_price" | "stock_quantity" | "sku"
 > & {
   product_variant_colors: ColorDetail[];
 };
@@ -25,6 +24,7 @@ export default function ProductPurchaseFlow({
   productId,
   productSlug,
   laceType,
+  description,
 }: {
   variants: VariantDetail[];
   reviews: Review[];
@@ -33,6 +33,7 @@ export default function ProductPurchaseFlow({
   productId: string;
   productSlug: string;
   laceType: string | null;
+  description: string | null;
 }) {
   const router = useRouter();
   const { addItem } = useCart();
@@ -56,6 +57,16 @@ export default function ProductPurchaseFlow({
   }
 
   const [quantity, setQuantity] = useState(1);
+
+  // Product details table — built from real structured data only
+  // (lace_type, and the distinct size/color values already on the
+  // variants). No dedicated "material"/"thickness" columns exist yet, and
+  // this phase is about layout, not adding new admin-editable fields, so
+  // those two rows are omitted rather than guessed at from free text.
+  const availableSizes = Array.from(new Set(variants.map((v) => v.size_label))).join(", ");
+  const availableColors = Array.from(
+    new Set(variants.flatMap((v) => v.product_variant_colors.map((c) => c.color_name))),
+  ).join(", ");
 
   if (!selectedVariant) {
     return (
@@ -97,12 +108,36 @@ export default function ProductPurchaseFlow({
     router.push("/cart");
   }
 
+  const onSale =
+    selectedVariant.compare_at_price != null &&
+    selectedVariant.compare_at_price > selectedVariant.price;
+
   return (
     <div className="flex flex-col gap-6">
-      <p className="font-heading text-2xl text-espresso">
-        {formatNaira(selectedVariant.price)}
-      </p>
+      {/* 3. Product title */}
+      <h1 className="font-heading text-product-title font-bold text-espresso lg:text-product-title-lg">
+        {productName}
+      </h1>
 
+      <StarRatingSummary reviews={reviews} />
+
+      {/* 4. Price */}
+      {onSale ? (
+        <p className="flex items-baseline gap-3">
+          <span className="font-sans text-lg text-charcoal/40 line-through">
+            {formatNaira(selectedVariant.compare_at_price!)}
+          </span>
+          <span className="font-sans text-price font-bold text-bronze md:text-price-md lg:text-price-lg">
+            {formatNaira(selectedVariant.price)}
+          </span>
+        </p>
+      ) : (
+        <p className="font-sans text-price font-bold text-espresso md:text-price-md lg:text-price-lg">
+          {formatNaira(selectedVariant.price)}
+        </p>
+      )}
+
+      {/* 5. Stock status */}
       <div className="flex items-center gap-2 font-sans text-sm">
         <span
           aria-hidden
@@ -113,10 +148,14 @@ export default function ProductPurchaseFlow({
         </span>
       </div>
 
-      <StarRatingSummary reviews={reviews} />
+      {/* 6. Product description */}
+      {description && (
+        <p className="font-sans text-body font-normal leading-relaxed text-charcoal/80">
+          {description}
+        </p>
+      )}
 
-      <ProductGallery images={images} productName={productName} />
-
+      {/* 7. Product options (color/size) */}
       {colors.length > 0 && (
         <div>
           <p className="mb-2 font-sans text-xs uppercase tracking-[0.2em] text-bronze">
@@ -193,36 +232,66 @@ export default function ProductPurchaseFlow({
         </button>
       </div>
 
-      <div className="flex gap-3">
+      {/* 8 & 9. Add to Cart / Buy Now */}
+      <div className="flex flex-col gap-3">
         <button
           type="button"
           onClick={handleAddToCart}
           disabled={!inStock}
-          className={`flex-1 rounded-md px-6 py-3 font-sans text-sm uppercase tracking-[0.2em] transition ${
+          className={`h-14 w-full rounded-brand font-sans text-sm font-semibold uppercase tracking-brand transition ${
             inStock
-              ? "bg-espresso text-ivory hover:bg-espresso/90"
+              ? "bg-charcoal text-white hover:bg-charcoal/90"
               : "cursor-not-allowed border border-charcoal/20 bg-charcoal/5 text-charcoal/40"
           }`}
         >
-          Add to Cart
+          ADD TO CART
         </button>
         <button
           type="button"
           onClick={handleBuyNow}
           disabled={!inStock}
-          className={`flex-1 rounded-md px-6 py-3 font-sans text-sm uppercase tracking-[0.2em] transition ${
+          className={`h-14 w-full rounded-brand border font-sans text-sm font-semibold uppercase tracking-brand transition ${
             inStock
-              ? "bg-bronze text-ivory hover:bg-bronze/90"
-              : "cursor-not-allowed border border-charcoal/20 bg-charcoal/5 text-charcoal/40"
+              ? "border-charcoal text-charcoal hover:bg-charcoal hover:text-white"
+              : "cursor-not-allowed border-charcoal/20 bg-charcoal/5 text-charcoal/40"
           }`}
         >
-          Buy Now
+          BUY NOW
         </button>
       </div>
 
       <p className="font-sans text-xs text-charcoal/60">
         Selling out weekly — restock before you run out!
       </p>
+
+      {/* 10. Product details */}
+      {(laceType || availableSizes || availableColors) && (
+        <div className="flex flex-col gap-2 border-t border-border pt-6">
+          <h2 className="font-heading text-lg font-semibold text-espresso">
+            Product Details
+          </h2>
+          <dl className="flex flex-col font-sans text-sm">
+            {laceType && (
+              <div className="flex justify-between gap-4 border-b border-border/60 py-2.5">
+                <dt className="text-charcoal/60">Lace Type</dt>
+                <dd className="text-right text-espresso">{laceType}</dd>
+              </div>
+            )}
+            {availableColors && (
+              <div className="flex justify-between gap-4 border-b border-border/60 py-2.5">
+                <dt className="text-charcoal/60">Color</dt>
+                <dd className="text-right text-espresso">{availableColors}</dd>
+              </div>
+            )}
+            {availableSizes && (
+              <div className="flex justify-between gap-4 py-2.5">
+                <dt className="text-charcoal/60">Lace Size</dt>
+                <dd className="text-right text-espresso">{availableSizes}</dd>
+              </div>
+            )}
+          </dl>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import BestSellersSection from "@/components/BestSellersSection";
 import OffersSection from "@/components/OffersSection";
-import ProductCard from "@/components/ProductCard";
+import ProductGridCard from "@/components/ProductGridCard";
 import type { BundleOfferForShop } from "@/lib/bundleOffers";
 import { getActiveBundleOffersForShop } from "@/lib/bundleOffers";
 import { getActiveProducts, type ProductSummary } from "@/lib/products";
@@ -44,14 +44,14 @@ export default async function ShopPage({
 
   return (
     <main className="flex min-h-screen flex-1 flex-col bg-ivory py-20">
-      <div className="mx-auto w-full max-w-6xl px-6 sm:px-12">
-        <header className="mb-16 text-center">
-          <span className="font-sans text-xs uppercase tracking-[0.3em] text-bronze">
-            The Collection
-          </span>
-          <h1 className="mt-3 font-heading text-4xl font-medium text-espresso sm:text-5xl">
-            Shop
+      <div className="mx-auto w-full max-w-content px-6 sm:px-12">
+        <header className="mb-16">
+          <h1 className="font-heading text-4xl font-medium text-espresso sm:text-5xl">
+            Lace Collection
           </h1>
+          <p className="mt-3 font-sans text-sm text-charcoal/70">
+            Choose the lace that fits into your client and your result
+          </p>
         </header>
 
         <section className="mb-20">
@@ -82,9 +82,9 @@ export default async function ShopPage({
               }
             />
           ) : (
-            <div className="grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-3 lg:gap-8">
               {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductGridCard key={product.id} product={product} />
               ))}
             </div>
           )}

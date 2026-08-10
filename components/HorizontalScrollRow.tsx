@@ -17,7 +17,7 @@ export default function HorizontalScrollRow({ children }: { children: ReactNode 
   }
 
   return (
-    <div className="relative mx-auto w-full max-w-6xl">
+    <div className="relative mx-auto w-full max-w-content">
       <button
         type="button"
         onClick={() => scroll("left")}

@@ -10,15 +10,71 @@
   --color-foreground: var(--foreground);
 
   /* Lace Luxe by Dee brand palette */
-  --color-ivory: #f7f3ee;
-  --color-charcoal: #2b2b2b;
-  --color-bronze: #9c6b3f;
-  --color-blush: #e7d3c8;
-  --color-espresso: #3a2f2a;
+  --color-ivory: #f7f3ee; /* Ivory Cream — background */
+  --color-charcoal: #2b2b2b; /* Deep Charcoal — primary text */
+  --color-bronze: #9c6b3f; /* Warm Bronze — accent elements */
+  --color-blush: #e7d3c8; /* Soft Nude Blush */
+  --color-espresso: #3a2f2a; /* Espresso Brown — footer background */
+  --color-border: #ece7e0; /* standard border color */
 
-  /* Brand typography */
+  /* Brand typography — logo/headings stay serif (Playfair Display for
+     headings, Cormorant Garamond for the logo specifically); nav, body,
+     buttons, and price all use Inter, differentiated by weight only
+     (font-weight-medium/semibold/bold, already built into Tailwind). */
+  --font-logo: var(--font-cormorant), "Cormorant Garamond", serif;
   --font-heading: var(--font-playfair), "Playfair Display", serif;
-  --font-sans: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Letter-spacing — apply to headings/nav/buttons, not body copy. */
+  --tracking-brand: 0.5px;
+
+  /* Font-size scale — mobile-first: the unprefixed token is the mobile
+     value; combine with the matching -md (tablet, 768px+) / -lg (desktop,
+     1024px+) token at the point of use, e.g.
+     `text-hero md:text-hero-md lg:text-hero-lg`. Only defined per-tier
+     where the source spec actually varies by breakpoint — flat sizes
+     (body, small, nav, button) are a single token used at every size.
+     Collection Titles and Navigation only had a desktop value specified,
+     so those are single flat tokens for now too. */
+  --text-hero: 42px;
+  --text-hero-md: 56px;
+  --text-hero-lg: 72px;
+
+  --text-section-title: 34px;
+  --text-section-title-md: 40px;
+  --text-section-title-lg: 48px;
+
+  --text-collection-title: 42px;
+
+  --text-product-title: 28px;
+  --text-product-title-lg: 32px;
+
+  --text-price: 22px;
+  --text-price-md: 24px;
+  --text-price-lg: 28px;
+
+  --text-body: 16px;
+  --text-small: 14px;
+  --text-nav: 15px;
+  --text-button: 14px;
+
+  /* Spacing scale — same mobile-first pattern as the font sizes above:
+     `py-section md:py-section-md lg:py-section-lg`. */
+  --spacing-section: 64px;
+  --spacing-section-md: 80px;
+  --spacing-section-lg: 120px;
+  --spacing-card: 24px;
+
+  /* Container widths. --container-content (1280px) is numerically the
+     same as Tailwind's built-in max-w-7xl; named explicitly here so it's
+     part of this design system rather than an unrelated generic scale
+     step. */
+  --container-content: 80rem; /* 1280px */
+  --container-page: 90rem; /* 1440px */
+
+  /* Standard card/image/button radius — 8px, pairs with `border
+     border-border` for the "1px solid, 8px radius" standard. */
+  --radius-brand: 8px;
 }
 
 body {

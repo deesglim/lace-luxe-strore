@@ -22,7 +22,7 @@ export default function TestimonialsSection({
   if (reviews.length < 3) return null;
 
   return (
-    <section className="border-t border-blush py-16">
+    <section className="border-t border-blush py-section md:py-section-md lg:py-section-lg">
       <h2 className="mb-10 text-center font-heading text-2xl text-espresso sm:text-3xl">
         What Our Customers Say
       </h2>
@@ -30,7 +30,7 @@ export default function TestimonialsSection({
         {reviews.map((review) => (
           <div
             key={review.id}
-            className="flex h-[240px] w-[260px] shrink-0 snap-start flex-col gap-3 rounded-md border border-blush bg-ivory p-6 shadow-sm"
+            className="flex h-[240px] w-[260px] shrink-0 snap-start flex-col gap-3 rounded-md border border-blush bg-ivory p-card shadow-sm"
           >
             <Stars rating={review.rating} />
             {review.comment && (

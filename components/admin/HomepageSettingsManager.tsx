@@ -28,11 +28,11 @@ export default function HomepageSettingsManager({
   const supabase = createClient();
 
   const [heading, setHeading] = useState(
-    initialSettings?.hero_heading ?? "Lace Luxe by Dee",
+    initialSettings?.hero_heading ?? "Luxury Lace For Flawless Installs",
   );
   const [subheading, setSubheading] = useState(
     initialSettings?.hero_subheading ??
-      "Discover premium HD and Swiss lace, crafted for flawless installs.",
+      "Premium HD Lace and Swiss Lace crafted for luxury wigmakers, hairstylists, and beauty brands.",
   );
   const [image, setImage] = useState<ImageItem[]>(
     initialSettings?.hero_image_url

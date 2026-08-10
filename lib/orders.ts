@@ -212,3 +212,25 @@ export async function getOrdersForCustomer(customerId: string): Promise<Customer
   if (error) throw error;
   return data ?? [];
 }
+
+export type PaidOrderPoint = {
+  id: string;
+  total: number;
+  created_at: string;
+};
+
+// Every paid order ever, id/total/date only — the admin dashboard's Sales
+// Overview slices this by date range entirely client-side (no per-filter
+// round trip), so this deliberately has no date bound of its own. Fine
+// while order volume is small; worth paginating if that changes.
+export async function getPaidOrdersForSalesOverview(): Promise<PaidOrderPoint[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("orders")
+    .select("id, total, created_at")
+    .eq("payment_status", "paid")
+    .order("created_at", { ascending: true });
+
+  if (error) throw error;
+  return data ?? [];
+}

@@ -9,7 +9,7 @@ export default function BestSellersSection({ products }: { products: ProductSumm
   if (bestSellers.length === 0) return null;
 
   return (
-    <section className="border-t border-blush py-16">
+    <section className="border-t border-blush py-section md:py-section-md lg:py-section-lg">
       <h2 className="mb-10 text-center font-heading text-2xl text-espresso sm:text-3xl">
         Best Sellers
       </h2>

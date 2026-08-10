@@ -22,7 +22,7 @@ export default function OfferCard({ offer }: { offer: BundleOfferForShop }) {
           </div>
         )}
       </div>
-      <div className="flex flex-col gap-1 px-4 py-4 text-center">
+      <div className="flex flex-col gap-1 p-card text-center">
         <p className="font-sans text-xs uppercase tracking-[0.3em] text-bronze">
           Bundle Offer
         </p>

@@ -7,20 +7,20 @@ import type {
   Review,
 } from "@/types";
 
-type VariantSummary = Pick<ProductVariant, "price">;
+type VariantSummary = Pick<ProductVariant, "price" | "compare_at_price">;
 type VariantColorDetail = Pick<
   ProductVariantColor,
   "id" | "color_name" | "stock_quantity"
 >;
 type VariantDetail = Pick<
   ProductVariant,
-  "id" | "size_label" | "price" | "stock_quantity" | "sku"
+  "id" | "size_label" | "price" | "compare_at_price" | "stock_quantity" | "sku"
 > & {
   product_variant_colors: VariantColorDetail[];
 };
 
 const VARIANT_WITH_COLORS_FIELDS =
-  "id, size_label, price, stock_quantity, sku, product_variant_colors(id, color_name, stock_quantity)";
+  "id, size_label, price, compare_at_price, stock_quantity, sku, product_variant_colors(id, color_name, stock_quantity)";
 
 export type ProductSummary = Pick<
   Product,
@@ -37,7 +37,9 @@ export async function getActiveProducts(): Promise<ProductSummary[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("products")
-    .select("id, name, slug, lace_type, images, is_best_seller, product_variants(price)")
+    .select(
+      "id, name, slug, lace_type, images, is_best_seller, product_variants(price, compare_at_price)",
+    )
     .eq("active", true)
     .order("created_at", { ascending: false });
 

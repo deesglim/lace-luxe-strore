@@ -18,8 +18,8 @@ export default async function SiteHeader() {
 
   return (
     <header className="border-b border-blush bg-ivory">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 sm:px-12">
-        <Link href="/" className="font-heading text-xl italic text-espresso">
+      <div className="mx-auto flex max-w-page items-center justify-between px-6 py-4 sm:px-12">
+        <Link href="/" className="font-logo text-2xl font-semibold text-espresso">
           Lace Luxe <span className="text-bronze">by Dee</span>
         </Link>
 
@@ -28,7 +28,7 @@ export default async function SiteHeader() {
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-md border border-charcoal/15 px-4 py-2 font-sans text-sm uppercase tracking-[0.1em] text-charcoal transition hover:border-bronze hover:bg-bronze/5 hover:text-bronze"
+              className="rounded-md border border-charcoal/15 px-4 py-2 font-sans text-nav font-medium uppercase tracking-brand text-charcoal transition hover:border-bronze hover:bg-bronze/5 hover:text-bronze"
             >
               {link.label}
             </Link>

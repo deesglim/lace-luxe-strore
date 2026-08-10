@@ -30,6 +30,7 @@ type VariantRow = {
   id?: string;
   size_label: string;
   price: string;
+  compareAtPrice: string;
   stock_quantity: string;
   sku: string;
   colors: ColorRow[];
@@ -40,6 +41,7 @@ function emptyVariantRow(): VariantRow {
     key: crypto.randomUUID(),
     size_label: "",
     price: "",
+    compareAtPrice: "",
     stock_quantity: "0",
     sku: "",
     colors: [],
@@ -159,6 +161,8 @@ export default function ProductForm({
           id: variant.id,
           size_label: variant.size_label,
           price: String(variant.price),
+          compareAtPrice:
+            variant.compare_at_price != null ? String(variant.compare_at_price) : "",
           stock_quantity: String(variant.stock_quantity),
           sku: variant.sku ?? "",
           colors: variant.product_variant_colors.map((color) => ({
@@ -420,6 +424,7 @@ export default function ProductForm({
         const variantPayload = {
           size_label: row.size_label,
           price: Number(row.price) || 0,
+          compare_at_price: row.compareAtPrice.trim() ? Number(row.compareAtPrice) : null,
           stock_quantity: Number(row.stock_quantity) || 0,
           sku: row.sku || null,
         };
@@ -652,7 +657,7 @@ export default function ProductForm({
             const colorsOpen = expandedVariantColors.has(row.key);
             return (
               <div key={row.key} className="flex flex-col gap-3 border border-blush p-4">
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-5 sm:items-end">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-6 sm:items-end">
                   <Field label="Size Label">
                     <input
                       value={row.size_label}
@@ -674,6 +679,22 @@ export default function ProductForm({
                       }
                       className={inputClass}
                     />
+                  </Field>
+                  <Field label="Compare-at Price (was)">
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={row.compareAtPrice}
+                      onChange={(e) =>
+                        updateVariant(row.key, "compareAtPrice", e.target.value)
+                      }
+                      placeholder="Optional"
+                      className={inputClass}
+                    />
+                    <span className="font-sans text-[11px] text-charcoal/50">
+                      Leave blank if not on sale.
+                    </span>
                   </Field>
                   <Field label="Stock">
                     <input

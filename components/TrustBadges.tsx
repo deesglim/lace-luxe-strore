@@ -47,7 +47,7 @@ function HeartIcon() {
 }
 
 const badges = [
-  { Icon: ShieldIcon, label: "Trusted Quality" },
+  { Icon: ShieldIcon, label: "Premium Quality Guaranteed" },
   { Icon: TruckIcon, label: "Fast Shipping" },
   { Icon: LockIcon, label: "Secure Payments" },
   { Icon: HeartIcon, label: "1000+ Happy Customers" },
@@ -55,8 +55,8 @@ const badges = [
 
 export default function TrustBadges() {
   return (
-    <section className="border-t border-blush py-16">
-      <div className="mx-auto grid w-full max-w-6xl grid-cols-2 gap-8 px-6 sm:grid-cols-4 sm:px-12">
+    <section className="border-t border-blush py-section md:py-section-md lg:py-section-lg">
+      <div className="mx-auto grid w-full max-w-content grid-cols-2 gap-8 px-6 sm:grid-cols-4 sm:px-12">
         {badges.map(({ Icon, label }) => (
           <div key={label} className="flex flex-col items-center gap-3 text-center">
             <span className="text-bronze">

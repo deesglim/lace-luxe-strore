@@ -1,5 +1,7 @@
 import Link from "next/link";
+import SalesOverview from "@/components/admin/SalesOverview";
 import { getCurrentProfile } from "@/lib/auth";
+import { getPaidOrdersForSalesOverview, type PaidOrderPoint } from "@/lib/orders";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +22,13 @@ const sections = [
 export default async function AdminHomePage() {
   const { profile } = await getCurrentProfile();
 
+  let paidOrders: PaidOrderPoint[] = [];
+  try {
+    paidOrders = await getPaidOrdersForSalesOverview();
+  } catch {
+    paidOrders = [];
+  }
+
   return (
     <div className="flex flex-col gap-10">
       <div>
@@ -29,6 +38,11 @@ export default async function AdminHomePage() {
         <h1 className="mt-2 font-heading text-3xl text-espresso">
           Welcome{profile?.full_name ? `, ${profile.full_name}` : ""}
         </h1>
+      </div>
+
+      <div>
+        <h2 className="mb-4 font-heading text-xl text-espresso">Sales Overview</h2>
+        <SalesOverview orders={paidOrders} />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -23,9 +23,9 @@ import type { StoreSettings } from "@/types";
 
 export const dynamic = "force-dynamic";
 
-const DEFAULT_HERO_HEADING = "Lace Luxe by Dee";
+const DEFAULT_HERO_HEADING = "Luxury Lace For Flawless Installs";
 const DEFAULT_HERO_SUBHEADING =
-  "Discover premium HD and Swiss lace, crafted for flawless installs.";
+  "Premium HD Lace and Swiss Lace crafted for luxury wigmakers, hairstylists, and beauty brands.";
 
 export default async function Home() {
   let settings: StoreSettings | null = null;

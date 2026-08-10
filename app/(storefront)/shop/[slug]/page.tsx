@@ -1,6 +1,8 @@
 import Link from "next/link";
+import ProductGallery from "@/components/ProductGallery";
 import ProductPurchaseFlow from "@/components/ProductPurchaseFlow";
 import ProductRecommendations from "@/components/ProductRecommendations";
+import TrustBadges from "@/components/TrustBadges";
 import { WhyChooseList, WhyNotChooseList } from "@/components/ProductWhyLists";
 import ReviewsSection from "@/components/ReviewsSection";
 import {
@@ -82,43 +84,53 @@ export default async function ProductDetailPage({
   }
 
   return (
-    <main className="flex min-h-screen flex-1 flex-col bg-ivory px-6 py-20">
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-8">
-        <div>
-          {product.lace_type && (
-            <p className="font-sans text-xs uppercase tracking-[0.3em] text-bronze">
-              {product.lace_type}
-            </p>
-          )}
-          <h1 className="mt-2 font-heading text-3xl font-medium text-espresso sm:text-4xl">
-            {product.name}
-          </h1>
+    <main className="flex min-h-screen flex-1 flex-col bg-ivory py-20">
+      {/*
+        Mobile: single column, DOM order = required order (1. image,
+        2. thumbnails come from ProductGallery; 3-10 come from
+        ProductPurchaseFlow, which renders title/price/stock/description/
+        options/buttons/details internally in that exact sequence).
+        Desktop: grid splits into a 60/40 (3fr/2fr) two-column layout —
+        gallery only needs `lg:col-start-1`, everything else only needs
+        `lg:col-start-2`; no per-item row placement needed since each
+        column's content is already one contiguous DOM block.
+      */}
+      <div className="mx-auto w-full max-w-content px-6 sm:px-12">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[3fr_2fr] lg:items-start lg:gap-16">
+          <div className="lg:col-start-1">
+            <ProductGallery images={product.images} productName={product.name} />
+          </div>
+          <div className="lg:col-start-2">
+            <ProductPurchaseFlow
+              variants={product.product_variants}
+              reviews={reviews}
+              images={product.images}
+              productName={product.name}
+              productId={product.id}
+              productSlug={product.slug}
+              laceType={product.lace_type}
+              description={product.description}
+            />
+          </div>
         </div>
+      </div>
 
-        {product.description && (
-          <p className="font-sans text-sm leading-relaxed text-charcoal/80">
-            {product.description}
-          </p>
-        )}
+      <TrustBadges />
 
-        <ProductPurchaseFlow
-          variants={product.product_variants}
-          reviews={reviews}
-          images={product.images}
-          productName={product.name}
-          productId={product.id}
-          productSlug={product.slug}
-          laceType={product.lace_type}
-        />
-
-        <WhyChooseList points={product.why_choose} />
-        <WhyNotChooseList points={product.why_not_choose} />
-        <ProductRecommendations recommendations={recommendations} />
+      {/* Why-choose/recommendations kept at their original narrow reading
+          width — unchanged in appearance, just repositioned below the new
+          two-column purchase area instead of the old single column. */}
+      <div className="mx-auto w-full max-w-2xl px-6 py-section md:py-section-md lg:py-section-lg">
+        <div className="flex flex-col gap-10">
+          <WhyChooseList points={product.why_choose} />
+          <WhyNotChooseList points={product.why_not_choose} />
+          <ProductRecommendations recommendations={recommendations} />
+        </div>
       </div>
 
       <div
         id="reviews"
-        className="mx-auto mt-16 w-full max-w-2xl border-t border-blush pt-12"
+        className="mx-auto w-full max-w-2xl border-t border-blush px-6 pt-12"
       >
         <div className="flex flex-col gap-10">
           <ReviewsSection reviews={reviews} productId={product.id} />

@@ -27,7 +27,7 @@ export default function ProductGallery({
 
   if (images.length === 0) {
     return (
-      <div className="aspect-[3/4] w-full overflow-hidden bg-blush">
+      <div className="aspect-[4/5] w-full overflow-hidden rounded-brand border border-border bg-blush">
         <div className="flex h-full w-full items-center justify-center">
           <span className="font-heading text-3xl italic text-bronze">LL</span>
         </div>
@@ -39,7 +39,7 @@ export default function ProductGallery({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="aspect-[3/4] w-full overflow-hidden bg-blush">
+      <div className="aspect-[4/5] w-full overflow-hidden rounded-brand border border-border bg-blush">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={activeImage}
@@ -56,10 +56,10 @@ export default function ProductGallery({
                 key={image}
                 type="button"
                 onClick={() => setActiveIndex(index)}
-                className={`h-16 w-16 shrink-0 overflow-hidden rounded-md border transition ${
+                className={`h-[88px] w-[70px] shrink-0 overflow-hidden rounded-brand border transition md:h-[100px] md:w-[80px] lg:h-[125px] lg:w-[100px] ${
                   index === activeIndex
-                    ? "border-espresso"
-                    : "border-charcoal/10 opacity-70 hover:border-bronze hover:opacity-100"
+                    ? "border-2 border-bronze"
+                    : "border-border opacity-70 hover:border-bronze hover:opacity-100"
                 }`}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}

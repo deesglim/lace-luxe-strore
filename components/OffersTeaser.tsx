@@ -30,7 +30,7 @@ export default function OffersTeaser({ offers }: { offers: BundleOfferForShop[] 
 
   return (
     <section className="border-t border-blush py-10">
-      <div className="mx-auto w-full max-w-6xl px-6 sm:px-12">
+      <div className="mx-auto w-full max-w-content px-6 sm:px-12">
         <Link
           href="/shop#offers"
           className="group flex flex-col items-stretch gap-4 rounded-md bg-espresso px-6 py-5 transition hover:bg-charcoal sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-10 sm:py-6"

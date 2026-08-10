@@ -12,11 +12,11 @@ export default function OffersSection({ offers }: { offers: BundleOfferForShop[]
   const specificOffers = offers.filter((offer) => offer.bundle_type === "specific_products");
 
   return (
-    <section id="offers" className="border-t border-blush py-16">
+    <section id="offers" className="border-t border-blush py-section md:py-section-md lg:py-section-lg">
       <h2 className="mb-10 text-center font-heading text-2xl text-espresso sm:text-3xl">
         Special Offers
       </h2>
-      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-x-8 gap-y-16 px-6 sm:grid-cols-2 sm:px-12 lg:grid-cols-3">
+      <div className="mx-auto grid w-full max-w-content grid-cols-1 gap-x-8 gap-y-16 px-6 sm:grid-cols-2 sm:px-12 lg:grid-cols-3">
         {flexibleOffers.map((offer) => (
           <OfferBanner key={offer.id} offer={offer} />
         ))}

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import HorizontalScrollRow from "@/components/HorizontalScrollRow";
 import type { ProductCategoryCard } from "@/lib/products";
 
 export default function CategorySection({
@@ -10,18 +9,18 @@ export default function CategorySection({
   if (categories.length === 0) return null;
 
   return (
-    <section className="border-t border-blush py-16">
+    <section className="border-t border-blush py-section md:py-section-md lg:py-section-lg">
       <h2 className="mb-10 text-center font-heading text-2xl text-espresso sm:text-3xl">
         Shop by Category
       </h2>
-      <HorizontalScrollRow>
+      <div className="mx-auto grid w-full max-w-content grid-cols-2 gap-5 px-6 sm:px-12 lg:grid-cols-4">
         {categories.map((category) => (
           <Link
             key={category.laceType}
             href={`/shop?type=${encodeURIComponent(category.laceType)}`}
-            className="group flex h-[280px] w-[220px] shrink-0 snap-start flex-col overflow-hidden rounded-md border border-blush bg-ivory shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            className="group flex flex-col overflow-hidden rounded-brand border border-border bg-ivory shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
           >
-            <div className="h-40 w-full shrink-0 overflow-hidden bg-blush">
+            <div className="aspect-[4/5] w-full shrink-0 overflow-hidden bg-blush">
               {category.representativeImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -35,14 +34,14 @@ export default function CategorySection({
                 </div>
               )}
             </div>
-            <div className="flex flex-1 items-center justify-center px-3 text-center">
-              <h3 className="line-clamp-1 font-heading text-base text-espresso sm:text-lg">
+            <div className="flex flex-1 items-center justify-center p-card text-center">
+              <h3 className="line-clamp-1 font-heading text-lg text-espresso">
                 {category.laceType}
               </h3>
             </div>
           </Link>
         ))}
-      </HorizontalScrollRow>
+      </div>
     </section>
   );
 }

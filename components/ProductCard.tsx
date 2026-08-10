@@ -17,8 +17,16 @@ export default function ProductCard({
   // since a proportional image inside a fixed-height card eats most of it.
   imageClassName?: string;
 }) {
-  const prices = product.product_variants.map((variant) => variant.price);
-  const fromPrice = prices.length > 0 ? Math.min(...prices) : null;
+  const cheapestVariant = product.product_variants.reduce<
+    (typeof product.product_variants)[number] | null
+  >((cheapest, variant) => {
+    if (!cheapest || variant.price < cheapest.price) return variant;
+    return cheapest;
+  }, null);
+  const fromPrice = cheapestVariant?.price ?? null;
+  const onSale =
+    cheapestVariant?.compare_at_price != null &&
+    cheapestVariant.compare_at_price > cheapestVariant.price;
   const image = product.images?.[0];
 
   return (
@@ -51,9 +59,18 @@ export default function ProductCard({
         <h3 className="line-clamp-2 min-h-[3.5rem] font-heading text-xl text-espresso">
           {product.name}
         </h3>
-        <p className="mt-auto font-sans text-sm text-charcoal/70">
-          {fromPrice !== null ? `From ${formatNaira(fromPrice)}` : "Price unavailable"}
-        </p>
+        {onSale && cheapestVariant ? (
+          <p className="mt-auto flex items-baseline justify-center gap-2 font-sans text-sm">
+            <span className="text-charcoal/40 line-through">
+              {formatNaira(cheapestVariant.compare_at_price!)}
+            </span>
+            <span className="font-semibold text-bronze">{formatNaira(fromPrice!)}</span>
+          </p>
+        ) : (
+          <p className="mt-auto font-sans text-sm text-charcoal/70">
+            {fromPrice !== null ? `From ${formatNaira(fromPrice)}` : "Price unavailable"}
+          </p>
+        )}
       </div>
     </Link>
   );

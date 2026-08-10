@@ -20,6 +20,7 @@ export type ProductVariant = {
   product_id: string;
   size_label: string;
   price: number;
+  compare_at_price: number | null;
   stock_quantity: number;
   sku: string | null;
   created_at: string;

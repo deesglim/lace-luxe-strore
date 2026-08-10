@@ -43,10 +43,12 @@ export default function NewsletterSignup() {
   }
 
   return (
-    <section className="border-t border-blush bg-blush/20 py-16">
+    <section className="border-t border-blush bg-ivory py-section md:py-section-md lg:py-section-lg">
       <div className="mx-auto flex w-full max-w-md flex-col items-center gap-4 px-6 text-center">
-        <h2 className="font-heading text-2xl text-espresso">Stay in the Loop</h2>
-        <p className="font-sans text-sm text-charcoal/70">
+        <h2 className="font-heading text-section-title font-bold tracking-brand text-espresso md:text-section-title-md lg:text-section-title-lg">
+          Stay In The Loop
+        </h2>
+        <p className="font-sans text-body text-charcoal/70">
           Be the first to hear about new arrivals, restocks, and exclusive offers.
         </p>
         <form onSubmit={handleSubmit} className="flex w-full flex-col gap-2 sm:flex-row">
@@ -56,20 +58,18 @@ export default function NewsletterSignup() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@email.com"
-            className="flex-1 rounded-md border border-charcoal/20 bg-ivory px-4 py-3 font-sans text-sm text-charcoal focus:border-espresso focus:outline-none"
+            className="h-14 flex-1 rounded-brand border border-charcoal/20 bg-ivory px-4 font-sans text-sm text-charcoal focus:border-espresso focus:outline-none"
           />
           <button
             type="submit"
             disabled={submitting}
-            className="shrink-0 rounded-md bg-espresso px-6 py-3 font-sans text-sm uppercase tracking-[0.2em] text-ivory transition hover:bg-espresso/90 disabled:opacity-50"
+            className="h-14 shrink-0 rounded-brand bg-espresso px-6 font-sans text-sm font-semibold uppercase tracking-brand text-ivory transition hover:bg-espresso/90 disabled:opacity-50"
           >
             {submitting ? "Subscribing…" : "Subscribe"}
           </button>
         </form>
         {result && (
-          <p
-            className={`font-sans text-xs ${result.ok ? "text-espresso" : "text-bronze"}`}
-          >
+          <p className={`font-sans text-xs ${result.ok ? "text-espresso" : "text-bronze"}`}>
             {result.message}
           </p>
         )}
