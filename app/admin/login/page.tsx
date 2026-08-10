@@ -18,19 +18,24 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError(null);
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (signInError) {
-      setError(signInError.message);
+      if (signInError) {
+        setError(signInError.message);
+        setLoading(false);
+        return;
+      }
+
+      router.push("/admin");
+      router.refresh();
+    } catch {
+      setError("Could not log in. Please check your connection and try again.");
       setLoading(false);
-      return;
     }
-
-    router.push("/admin");
-    router.refresh();
   }
 
   return (

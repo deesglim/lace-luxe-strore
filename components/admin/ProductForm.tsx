@@ -362,6 +362,44 @@ export default function ProductForm({
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
+
+    const activeVariants = variants.filter((row) => row.id || row.size_label.trim());
+    if (activeVariants.length === 0) {
+      setError("Add at least one size before saving.");
+      return;
+    }
+
+    for (const row of activeVariants) {
+      const label = row.size_label.trim() || "one of the sizes";
+      const price = Number(row.price);
+      if (row.price.trim() === "" || !Number.isFinite(price) || price < 0) {
+        setError(`Enter a valid, non-negative price for "${label}".`);
+        return;
+      }
+      const stock = Number(row.stock_quantity);
+      if (row.stock_quantity.trim() === "" || !Number.isFinite(stock) || stock < 0) {
+        setError(`Enter a valid, non-negative stock quantity for "${label}".`);
+        return;
+      }
+      if (row.compareAtPrice.trim()) {
+        const compareAt = Number(row.compareAtPrice);
+        if (!Number.isFinite(compareAt) || compareAt < 0) {
+          setError(`Enter a valid, non-negative compare-at price for "${label}".`);
+          return;
+        }
+      }
+      for (const color of row.colors) {
+        if (!color.id && !color.color_name.trim()) continue;
+        const colorStock = Number(color.stock_quantity);
+        if (color.stock_quantity.trim() === "" || !Number.isFinite(colorStock) || colorStock < 0) {
+          setError(
+            `Enter a valid, non-negative stock quantity for the "${color.color_name || "color"}" option on "${label}".`,
+          );
+          return;
+        }
+      }
+    }
+
     setSaving(true);
     setError(null);
 

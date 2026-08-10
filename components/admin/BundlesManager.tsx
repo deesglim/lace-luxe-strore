@@ -322,6 +322,15 @@ export default function BundlesManager({
       }
     }
 
+    if (
+      formState.startsAt &&
+      formState.endsAt &&
+      formState.endsAt < formState.startsAt
+    ) {
+      setError("The end date can't be before the start date.");
+      return;
+    }
+
     setSaving(true);
     setError(null);
 

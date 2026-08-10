@@ -132,12 +132,24 @@ export default function PromotionsManager({
       setError("Enter a value greater than 0.");
       return;
     }
+    if (formState.type === "percentage" && value > 100) {
+      setError("A percentage discount can't be more than 100%.");
+      return;
+    }
     if (formState.scope !== "sitewide" && !formState.scopeReference) {
       setError(
         formState.scope === "category"
           ? "Choose a category."
           : "Choose a product.",
       );
+      return;
+    }
+    if (
+      formState.startsAt &&
+      formState.endsAt &&
+      formState.endsAt < formState.startsAt
+    ) {
+      setError("The end date can't be before the start date.");
       return;
     }
 

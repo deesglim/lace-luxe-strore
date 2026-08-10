@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 export type MediaItem =
   | { kind: "existing"; url: string; mediaType: "image" | "video" }
@@ -29,10 +29,16 @@ export default function MediaUploader({
   uploading?: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [rejectedMessage, setRejectedMessage] = useState<string | null>(null);
 
   function handleFiles(fileList: FileList | null) {
     const file = fileList?.[0];
     if (!file) return;
+    if (!file.type.startsWith("image/") && !file.type.startsWith("video/")) {
+      setRejectedMessage("Please choose a photo or video file.");
+      return;
+    }
+    setRejectedMessage(null);
     if (item?.kind === "pending") URL.revokeObjectURL(item.previewUrl);
     onChange(createPendingMediaItem(file));
   }
@@ -83,6 +89,10 @@ export default function MediaUploader({
             Click to upload a photo or short video
           </p>
         </div>
+      )}
+
+      {rejectedMessage && (
+        <p className="font-sans text-xs text-bronze">{rejectedMessage}</p>
       )}
 
       <input

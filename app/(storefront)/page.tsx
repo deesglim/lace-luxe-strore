@@ -4,15 +4,12 @@ import CustomerShowcaseSection from "@/components/CustomerShowcaseSection";
 import HomeHero from "@/components/HomeHero";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import OffersTeaser from "@/components/OffersTeaser";
-import TestimonialsSection from "@/components/TestimonialsSection";
 import type { BundleOfferForShop } from "@/lib/bundleOffers";
 import { getActiveBundleOffersForShop } from "@/lib/bundleOffers";
 import { getStoreSettings } from "@/lib/deliveryOptions";
 import {
   getActiveProducts,
-  getFeaturedReviews,
   getProductCategoriesForShop,
-  type FeaturedReview,
   type ProductCategoryCard,
   type ProductSummary,
 } from "@/lib/products";
@@ -55,13 +52,6 @@ export default async function Home() {
     offers = [];
   }
 
-  let reviews: FeaturedReview[] = [];
-  try {
-    reviews = await getFeaturedReviews();
-  } catch {
-    reviews = [];
-  }
-
   let showcaseItems: ShowcaseItem[] = [];
   try {
     showcaseItems = await getActiveShowcaseItemsForHomepage();
@@ -79,7 +69,6 @@ export default async function Home() {
       <CategorySection categories={categories} />
       <BestSellersSection products={products} />
       <OffersTeaser offers={offers} />
-      <TestimonialsSection reviews={reviews} />
       <CustomerShowcaseSection items={showcaseItems} />
       <NewsletterSignup />
     </main>

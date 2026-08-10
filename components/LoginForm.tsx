@@ -30,23 +30,28 @@ export default function LoginForm({ redirectTo }: { redirectTo?: string }) {
     setLoading(true);
     setError(null);
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (signInError) {
-      setError(
-        signInError.message.toLowerCase().includes("invalid")
-          ? "Incorrect email or password. Please try again."
-          : signInError.message,
-      );
+      if (signInError) {
+        setError(
+          signInError.message.toLowerCase().includes("invalid")
+            ? "Incorrect email or password. Please try again."
+            : signInError.message,
+        );
+        setLoading(false);
+        return;
+      }
+
+      router.push(safeRedirectTarget(redirectTo));
+      router.refresh();
+    } catch {
+      setError("Could not log in. Please check your connection and try again.");
       setLoading(false);
-      return;
     }
-
-    router.push(safeRedirectTarget(redirectTo));
-    router.refresh();
   }
 
   return (

@@ -42,26 +42,31 @@ export default function AccountProfileForm({
     setSaved(false);
     setError(null);
 
-    const { error: updateError } = await supabase
-      .from("profiles")
-      .update({
-        full_name: fullName.trim() || null,
-        phone: phone.trim() || null,
-        address_line: addressLine.trim() || null,
-        city: city.trim() || null,
-        state: state.trim() || null,
-      })
-      .eq("id", profile.id);
+    try {
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({
+          full_name: fullName.trim() || null,
+          phone: phone.trim() || null,
+          address_line: addressLine.trim() || null,
+          city: city.trim() || null,
+          state: state.trim() || null,
+        })
+        .eq("id", profile.id);
 
-    if (updateError) {
-      setError(updateError.message);
+      if (updateError) {
+        setError(updateError.message);
+        setSaving(false);
+        return;
+      }
+
       setSaving(false);
-      return;
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch {
+      setError("Could not save your changes. Please check your connection and try again.");
+      setSaving(false);
     }
-
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
   }
 
   return (

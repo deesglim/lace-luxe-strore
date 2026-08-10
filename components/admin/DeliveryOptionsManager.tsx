@@ -115,6 +115,12 @@ export default function DeliveryOptionsManager({
       return;
     }
 
+    const price = Number(formState.price);
+    if (formState.price.trim() !== "" && (!Number.isFinite(price) || price < 0)) {
+      setError("Enter a valid, non-negative price.");
+      return;
+    }
+
     setSaving(true);
     setError(null);
 
@@ -122,7 +128,7 @@ export default function DeliveryOptionsManager({
       category: formState.category,
       name,
       description: formState.description.trim() || null,
-      price: Number(formState.price) || 0,
+      price: Number.isFinite(price) ? price : 0,
       delivery_time: formState.delivery_time.trim() || null,
       active: formState.active,
       display_order: Number(formState.display_order) || 0,

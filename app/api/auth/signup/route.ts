@@ -34,9 +34,13 @@ export async function POST(request: NextRequest) {
   const phone = body.phone?.trim();
   const password = body.password;
 
-  if (!fullName || !email || !phone || !password) {
-    return badRequest("Please fill in all fields.");
+  if (!fullName) return badRequest("Please enter your full name.");
+  if (!email) return badRequest("Please enter your email address.");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return badRequest("Please enter a valid email address.");
   }
+  if (!phone) return badRequest("Please enter your phone number.");
+  if (!password) return badRequest("Please enter a password.");
   if (password.length < 6) {
     return badRequest("Password must be at least 6 characters.");
   }

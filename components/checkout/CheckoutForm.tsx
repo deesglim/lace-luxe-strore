@@ -148,7 +148,10 @@ export default function CheckoutForm({
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    if (!deliveryOptionId) return;
+    if (!deliveryOptionId) {
+      setError("Please select a delivery method to continue.");
+      return;
+    }
 
     setSubmitting(true);
     setError(null);
@@ -474,43 +477,55 @@ export default function CheckoutForm({
             </div>
 
             <div className="mt-4 flex flex-col gap-2 border-t border-blush pt-4">
-              <label className="flex flex-col gap-2 font-sans text-sm text-charcoal">
-                <span className="font-label text-xs font-medium uppercase tracking-label text-bronze">
-                  Discount Code
-                </span>
-                <div className="flex gap-2">
-                  <input
-                    value={promoCodeInput}
-                    onChange={(e) => {
-                      setPromoCodeInput(e.target.value);
-                      setCodeError(null);
-                    }}
-                    placeholder="e.g. DEES10"
-                    className={`${inputClass} flex-1`}
-                  />
-                  <button
-                    type="button"
-                    onClick={handleApplyCode}
-                    disabled={!promoCodeInput.trim()}
-                    className="h-14 shrink-0 rounded-button border border-espresso px-4 font-sans text-xs uppercase tracking-[0.15em] text-espresso transition hover:bg-espresso hover:text-ivory disabled:cursor-not-allowed disabled:opacity-50"
+              <span className="font-label text-xs font-medium uppercase tracking-label text-bronze">
+                Discount Code
+              </span>
+              {isLoggedIn ? (
+                <>
+                  <div className="flex gap-2">
+                    <input
+                      value={promoCodeInput}
+                      onChange={(e) => {
+                        setPromoCodeInput(e.target.value);
+                        setCodeError(null);
+                      }}
+                      placeholder="e.g. DEES10"
+                      className={`${inputClass} flex-1`}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleApplyCode}
+                      disabled={!promoCodeInput.trim()}
+                      className="h-14 shrink-0 rounded-button border border-espresso px-4 font-sans text-xs uppercase tracking-[0.15em] text-espresso transition hover:bg-espresso hover:text-ivory disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                  {codeError && (
+                    <p className="font-sans text-xs text-bronze">{codeError}</p>
+                  )}
+                  {appliedCode &&
+                    !codeError &&
+                    deal.promotion?.code?.toUpperCase() !== appliedCode.toUpperCase() && (
+                      <p className="font-sans text-xs text-charcoal/60">
+                        Code &ldquo;{appliedCode}&rdquo; is valid, but{" "}
+                        {deal.type === "bundle" ? "a bundle deal" : "an automatic discount"}{" "}
+                        already applied is bigger — that one&apos;s being used
+                        instead.
+                      </p>
+                    )}
+                </>
+              ) : (
+                <p className="font-sans text-xs text-charcoal/60">
+                  <Link
+                    href="/login?redirect=/checkout"
+                    className="text-bronze underline underline-offset-4"
                   >
-                    Apply
-                  </button>
-                </div>
-              </label>
-              {codeError && (
-                <p className="font-sans text-xs text-bronze">{codeError}</p>
+                    Log in
+                  </Link>{" "}
+                  to use a discount code.
+                </p>
               )}
-              {appliedCode &&
-                !codeError &&
-                deal.promotion?.code?.toUpperCase() !== appliedCode.toUpperCase() && (
-                  <p className="font-sans text-xs text-charcoal/60">
-                    Code &ldquo;{appliedCode}&rdquo; is valid, but{" "}
-                    {deal.type === "bundle" ? "a bundle deal" : "an automatic discount"}{" "}
-                    already applied is bigger — that one&apos;s being used
-                    instead.
-                  </p>
-                )}
             </div>
 
             <div className="mt-4 flex flex-col gap-2 border-t border-blush pt-4">

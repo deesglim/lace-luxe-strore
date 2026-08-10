@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, type DragEvent } from "react";
+import { useRef, useState, type DragEvent } from "react";
 
 export type ImageItem =
   | { key: string; kind: "existing"; url: string }
@@ -29,15 +29,21 @@ export default function ImageUploader({
   uploadingKeys?: Set<string>;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [rejectedMessage, setRejectedMessage] = useState<string | null>(null);
 
   function addFiles(fileList: FileList | null) {
     if (!fileList || fileList.length === 0) return;
-    const newItems = Array.from(fileList)
-      .filter((file) => file.type.startsWith("image/"))
-      .map(createPendingImageItem);
+    const files = Array.from(fileList);
+    const validFiles = files.filter((file) => file.type.startsWith("image/"));
+    const newItems = validFiles.map(createPendingImageItem);
     if (newItems.length > 0) {
       onChange([...images, ...newItems]);
     }
+    setRejectedMessage(
+      validFiles.length < files.length
+        ? "Only image files can be uploaded here — anything else was skipped."
+        : null,
+    );
   }
 
   function handleDrop(event: DragEvent<HTMLDivElement>) {
@@ -84,6 +90,10 @@ export default function ImageUploader({
           }}
         />
       </div>
+
+      {rejectedMessage && (
+        <p className="font-sans text-xs text-bronze">{rejectedMessage}</p>
+      )}
 
       {images.length > 0 && (
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">

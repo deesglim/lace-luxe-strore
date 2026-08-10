@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getAllBundleOffersAdmin } from "@/lib/bundleOffers";
 import { getStoreSettingsAdmin } from "@/lib/deliveryOptions";
-import { pickBestDeal } from "@/lib/discount";
+import { findPromotionByCode, pickBestDeal } from "@/lib/discount";
 import { initializePaystackTransaction } from "@/lib/paystack";
 import { getAllPromotionsAdmin } from "@/lib/promotions";
 import { createClient } from "@/lib/supabase/server";
@@ -49,16 +49,15 @@ export async function POST(request: NextRequest) {
   if (!Array.isArray(items) || items.length === 0) {
     return badRequest("Your cart is empty.");
   }
-  if (
-    !customer?.fullName?.trim() ||
-    !customer?.email?.trim() ||
-    !customer?.phone?.trim() ||
-    !customer?.addressLine?.trim() ||
-    !customer?.city?.trim() ||
-    !customer?.state?.trim()
-  ) {
-    return badRequest("Please fill in all contact and shipping fields.");
+  if (!customer?.fullName?.trim()) return badRequest("Please enter your full name.");
+  if (!customer?.email?.trim()) return badRequest("Please enter your email address.");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email.trim())) {
+    return badRequest("Please enter a valid email address.");
   }
+  if (!customer?.phone?.trim()) return badRequest("Please enter your phone number.");
+  if (!customer?.addressLine?.trim()) return badRequest("Please enter your delivery address.");
+  if (!customer?.city?.trim()) return badRequest("Please enter your city.");
+  if (!customer?.state?.trim()) return badRequest("Please enter your state.");
   if (createAccount && (!password || password.length < 6)) {
     return badRequest("Password must be at least 6 characters.");
   }
@@ -106,7 +105,7 @@ export async function POST(request: NextRequest) {
 
     const { data: variant, error: variantError } = await supabaseAdmin
       .from("product_variants")
-      .select("id, price, stock_quantity, product_id, products(lace_type)")
+      .select("id, price, stock_quantity, product_id, products(name, lace_type)")
       .eq("id", rawItem.variantId)
       .maybeSingle();
 
@@ -114,6 +113,14 @@ export async function POST(request: NextRequest) {
     if (!variant) {
       return badRequest("One of the items in your cart is no longer available.");
     }
+
+    // supabase-js infers this to-one embed as an array without generated
+    // DB types (same quirk noted in lib/orders.ts) — at runtime it's always
+    // a single object or null.
+    const productRow = Array.isArray(variant.products)
+      ? (variant.products[0] ?? null)
+      : variant.products;
+    const itemLabel = productRow?.name ?? "One of the items in your cart";
 
     let availableStock = variant.stock_quantity;
 
@@ -133,16 +140,11 @@ export async function POST(request: NextRequest) {
 
     if (rawItem.quantity > availableStock) {
       return badRequest(
-        `Only ${availableStock} left in stock for one of your items — please update your cart.`,
+        availableStock <= 0
+          ? `${itemLabel} is currently out of stock — please remove it from your cart.`
+          : `Only ${availableStock} left in stock for ${itemLabel} — please reduce the quantity in your cart.`,
       );
     }
-
-    // supabase-js infers this to-one embed as an array without generated
-    // DB types (same quirk noted in lib/orders.ts) — at runtime it's always
-    // a single object or null.
-    const productRow = Array.isArray(variant.products)
-      ? (variant.products[0] ?? null)
-      : variant.products;
 
     resolvedItems.push({
       variantId: rawItem.variantId,
@@ -168,6 +170,22 @@ export async function POST(request: NextRequest) {
     freeShippingThreshold > 0 && subtotal >= freeShippingThreshold;
   const deliveryFee = freeShippingApplied ? 0 : deliveryOption.price;
 
+  // Resolve who's placing the order: an already-logged-in session wins for
+  // *attribution* (customer_id, order history), otherwise create an account
+  // (and sign them in) or fall back to guest. Independent of that, the
+  // email typed into the checkout form is always what correspondence for
+  // this order goes to — a stale/shared-device session shouldn't silently
+  // redirect the receipt to whatever email that account was originally
+  // created with instead of what the person in front of the form typed.
+  // Resolved before the discount block below too, since a code's
+  // eligibility depends on whether there's an *existing* logged-in session
+  // — a guest checking "create an account" in this same request still
+  // wasn't logged in when they typed the code, so that shouldn't retroactively
+  // unlock code usage.
+  const {
+    data: { user: existingUser },
+  } = await cookieClient.auth.getUser();
+
   // Same "never trust the client" treatment as everything else above: the
   // client's claimed discount is ignored entirely — only the submitted code
   // (if any) carries over, and the actual amount is recomputed here against
@@ -178,6 +196,34 @@ export async function POST(request: NextRequest) {
     getAllPromotionsAdmin(),
     getAllBundleOffersAdmin(),
   ]);
+
+  // Codes are guest-only-blocked, not feature-gated entirely — automatic
+  // (no-code) promotions and bundles still apply for everyone below
+  // regardless of what happens to promoCode here. Bypassing the UI (typing
+  // a code as a guest, or replaying a used one) gets refused server-side,
+  // same as every other "never trust the client" check in this route.
+  const trimmedPromoCode = promoCode?.trim() || null;
+  if (trimmedPromoCode) {
+    if (!existingUser) {
+      return badRequest("Please log in to use a discount code.");
+    }
+
+    const matchedPromotion = findPromotionByCode(promotions, trimmedPromoCode);
+    if (matchedPromotion) {
+      const { data: existingRedemption, error: redemptionLookupError } = await supabaseAdmin
+        .from("promo_redemptions")
+        .select("id")
+        .eq("promotion_id", matchedPromotion.id)
+        .eq("customer_id", existingUser.id)
+        .maybeSingle();
+
+      if (redemptionLookupError) throw redemptionLookupError;
+      if (existingRedemption) {
+        return badRequest("You've already used this discount code.");
+      }
+    }
+  }
+
   const discountCartItems = resolvedItems.map((item) => ({
     productId: item.productId,
     variantId: item.variantId,
@@ -186,21 +232,10 @@ export async function POST(request: NextRequest) {
     price: item.price,
     quantity: item.quantity,
   }));
-  const deal = pickBestDeal(promotions, bundles, discountCartItems, promoCode);
+  const deal = pickBestDeal(promotions, bundles, discountCartItems, trimmedPromoCode);
   const discountAmount = deal.amount;
 
   const total = subtotal - discountAmount + deliveryFee;
-
-  // Resolve who's placing the order: an already-logged-in session wins for
-  // *attribution* (customer_id, order history), otherwise create an account
-  // (and sign them in) or fall back to guest. Independent of that, the
-  // email typed into the checkout form is always what correspondence for
-  // this order goes to — a stale/shared-device session shouldn't silently
-  // redirect the receipt to whatever email that account was originally
-  // created with instead of what the person in front of the form typed.
-  const {
-    data: { user: existingUser },
-  } = await cookieClient.auth.getUser();
 
   let customerId: string | null = null;
   const contactEmail: string = customer.email;

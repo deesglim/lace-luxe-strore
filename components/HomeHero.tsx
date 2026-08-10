@@ -29,9 +29,6 @@ export default function HomeHero({
       )}
 
       <div className="relative z-10 flex w-full max-w-[600px] flex-col items-center gap-6">
-        <span className="font-label text-xs font-medium uppercase tracking-label text-bronze">
-          EST. 2026
-        </span>
         <h1
           className={`font-heading text-hero font-medium leading-[1.1] md:text-hero-md lg:text-hero-lg ${
             imageUrl ? "text-ivory" : "text-espresso"

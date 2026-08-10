@@ -39,23 +39,28 @@ export default function ReviewSubmissionForm({ productId }: { productId: string 
 
     setSubmitting(true);
 
-    const supabase = createClient();
-    const { error: insertError } = await supabase.from("reviews").insert({
-      product_id: productId,
-      customer_name: trimmedName,
-      rating,
-      comment: comment.trim() || null,
-      approved: false,
-    });
+    try {
+      const supabase = createClient();
+      const { error: insertError } = await supabase.from("reviews").insert({
+        product_id: productId,
+        customer_name: trimmedName,
+        rating,
+        comment: comment.trim() || null,
+        approved: false,
+      });
 
-    if (insertError) {
-      setError("Something went wrong. Please try again.");
+      if (insertError) {
+        setError("Something went wrong. Please try again.");
+        setSubmitting(false);
+        return;
+      }
+
+      setSubmitted(true);
       setSubmitting(false);
-      return;
+    } catch {
+      setError("Something went wrong. Please check your connection and try again.");
+      setSubmitting(false);
     }
-
-    setSubmitted(true);
-    setSubmitting(false);
   }
 
   if (submitted) {

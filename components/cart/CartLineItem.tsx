@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useCart } from "@/components/cart/CartProvider";
 import { formatNaira } from "@/lib/format";
+import { createClient } from "@/lib/supabase/client";
 import type { CartItem } from "@/types";
 
 export default function CartLineItem({
@@ -13,6 +15,49 @@ export default function CartLineItem({
   compact?: boolean;
 }) {
   const { updateQuantity, removeItem } = useCart();
+  const [stockNotice, setStockNotice] = useState<string | null>(null);
+  const [checkingStock, setCheckingStock] = useState(false);
+
+  // The cart is client-only (localStorage), so it never knows the real
+  // current stock — re-check live on every "+" click rather than letting
+  // updateQuantity's optional availableStock cap silently no-op (it
+  // defaults to Infinity when nothing's passed, which is exactly what was
+  // happening here before: clicking "+" past real stock just kept
+  // incrementing with zero feedback until checkout's own re-derived check
+  // caught it at the very end).
+  async function handleIncrease() {
+    setStockNotice(null);
+    setCheckingStock(true);
+    try {
+      const supabase = createClient();
+      const { data } = item.colorId
+        ? await supabase
+            .from("product_variant_colors")
+            .select("stock_quantity")
+            .eq("id", item.colorId)
+            .maybeSingle()
+        : await supabase
+            .from("product_variants")
+            .select("stock_quantity")
+            .eq("id", item.variantId)
+            .maybeSingle();
+      const available = data?.stock_quantity ?? 0;
+
+      if (item.quantity >= available) {
+        setStockNotice(
+          available <= 0
+            ? "This item is currently out of stock."
+            : `Only ${available} in stock — that's the most you can add.`,
+        );
+        return;
+      }
+      updateQuantity(item.id, item.quantity + 1, available);
+    } catch {
+      setStockNotice("Could not check stock. Please try again.");
+    } finally {
+      setCheckingStock(false);
+    }
+  }
 
   return (
     <div className="flex gap-3">
@@ -64,7 +109,10 @@ export default function CartLineItem({
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+              onClick={() => {
+                setStockNotice(null);
+                updateQuantity(item.id, item.quantity - 1);
+              }}
               className="h-9 w-9 rounded-md border border-charcoal/20 font-sans text-xs text-charcoal transition hover:border-bronze hover:text-bronze"
               aria-label="Decrease quantity"
             >
@@ -75,8 +123,9 @@ export default function CartLineItem({
             </span>
             <button
               type="button"
-              onClick={() => updateQuantity(item.id, item.quantity + 1)}
-              className="h-9 w-9 rounded-md border border-charcoal/20 font-sans text-xs text-charcoal transition hover:border-bronze hover:text-bronze"
+              onClick={handleIncrease}
+              disabled={checkingStock}
+              className="h-9 w-9 rounded-md border border-charcoal/20 font-sans text-xs text-charcoal transition hover:border-bronze hover:text-bronze disabled:cursor-not-allowed disabled:opacity-50"
               aria-label="Increase quantity"
             >
               +
@@ -90,6 +139,9 @@ export default function CartLineItem({
             Remove
           </button>
         </div>
+        {stockNotice && (
+          <p className="font-sans text-xs text-bronze">{stockNotice}</p>
+        )}
       </div>
     </div>
   );

@@ -21,8 +21,18 @@ function AccountGlyph() {
   );
 }
 
+// The dropdown panel always sits on its own solid ivory card, regardless
+// of the header's current state — but it's still a DOM descendant of the
+// header's icon row, which (while the homepage hero is showing through a
+// transparent header) applies a `[&_a]:text-ivory [&_button]:text-ivory`
+// override to every nested link/button so the icons stay legible against
+// the hero image. That override was winning over this menu's own
+// text-charcoal at rest (only losing to it on :hover, where the hover
+// variant's higher specificity took over) — ivory text on an ivory card
+// is invisible until hovered. `!` makes these colors unconditional so the
+// menu is always readable no matter what state the header is in.
 const menuItemClass =
-  "block w-full px-5 py-3 text-left font-sans text-sm text-charcoal transition hover:bg-blush/20 hover:text-espresso";
+  "block w-full px-5 py-3 text-left font-sans text-sm !text-charcoal transition hover:bg-blush/20 hover:!text-espresso";
 
 export default function AccountDropdown() {
   const [open, setOpen] = useState(false);
@@ -73,7 +83,7 @@ export default function AccountDropdown() {
           <Link
             href="/account/orders"
             onClick={() => setOpen(false)}
-            className={`border-t border-blush ${menuItemClass}`}
+            className={`border-t !border-blush ${menuItemClass}`}
           >
             Orders
           </Link>

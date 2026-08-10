@@ -39,7 +39,12 @@ export default function ProductCard({
         fluid ? "w-full sm:w-[200px]" : "w-[200px]"
       }`}
     >
-      <div className="w-full flex-1 overflow-hidden bg-blush">
+      <div className="relative w-full flex-1 overflow-hidden bg-blush">
+        {product.is_best_seller && (
+          <span className="absolute left-2 top-2 z-10 rounded-full bg-espresso px-2.5 py-1 font-label text-[9px] font-medium uppercase tracking-label text-ivory shadow-sm">
+            Best Seller
+          </span>
+        )}
         {image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img

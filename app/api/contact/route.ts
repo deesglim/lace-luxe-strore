@@ -25,9 +25,12 @@ export async function POST(request: NextRequest) {
   const email = body.email?.trim();
   const message = body.message?.trim();
 
-  if (!name || !email || !message) {
-    return badRequest("Please fill in your name, email, and message.");
+  if (!name) return badRequest("Please enter your name.");
+  if (!email) return badRequest("Please enter your email address.");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return badRequest("Please enter a valid email address.");
   }
+  if (!message) return badRequest("Please enter a message.");
 
   try {
     await sendContactFormNotificationEmail({ name, email, message });

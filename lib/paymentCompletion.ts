@@ -56,6 +56,28 @@ export async function completeOrderPayment(
     });
   }
 
+  // Record the code redemption only once payment actually succeeds — not
+  // at order creation — so an abandoned/failed pending order never
+  // permanently locks a customer out of a code they never actually got to
+  // use. Gated on promotion.code (not just promotion_id) so this only ever
+  // fires for a code-based order — an automatic sitewide sale also sets
+  // promotion_id, but must stay unlimited-use per customer, never logged
+  // here. The pending->paid claim above already guarantees this runs at
+  // most once per order, so no onConflict/upsert is needed.
+  if (orderWithItems.promotion_id && orderWithItems.promotion?.code && orderWithItems.customer_id) {
+    try {
+      await supabaseAdmin.from("promo_redemptions").insert({
+        promotion_id: orderWithItems.promotion_id,
+        customer_id: orderWithItems.customer_id,
+        order_id: orderWithItems.id,
+      });
+    } catch (redemptionError) {
+      // Don't fail the caller over this — stock is already decremented and
+      // the order is already correctly marked paid.
+      console.error("Failed to record promo redemption", redemptionError);
+    }
+  }
+
   // Resolved once and reused for both emails below. Kept outside the
   // try/catches so a failure in one send doesn't affect the other — the
   // admin should still hear about the order even if the customer's address

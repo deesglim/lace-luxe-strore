@@ -8,7 +8,7 @@ export default function CustomerShowcaseSection({ items }: { items: ShowcaseItem
   return (
     <section className="border-t border-blush py-section">
       <h2 className="mx-auto mb-10 w-full max-w-content px-6 text-left font-heading text-2xl font-medium text-espresso sm:text-3xl lg:px-[60px]">
-        Our Customers Are Obsessed
+        Here&apos;s What Our Lace Girlies Are Saying
       </h2>
       <HorizontalScrollRow>
         {items.map((item) => (
