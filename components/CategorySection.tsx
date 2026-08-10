@@ -11,7 +11,7 @@ export default function CategorySection({
 
   return (
     <section className="border-t border-blush py-section">
-      <h2 className="mb-10 text-center font-heading font-medium text-2xl text-espresso sm:text-3xl">
+      <h2 className="mx-auto mb-10 w-full max-w-content px-6 text-left font-heading text-2xl font-medium text-espresso sm:text-3xl lg:px-[60px]">
         Shop by Category
       </h2>
       <HorizontalScrollRow>
@@ -19,27 +19,28 @@ export default function CategorySection({
           <div key={category.laceType} className="shrink-0 snap-start">
             <Link
               href={`/shop?type=${encodeURIComponent(category.laceType)}`}
-              className="group flex h-[320px] w-[200px] flex-col overflow-hidden rounded-brand border border-espresso/[0.08] bg-ivory shadow-[0_8px_25px_rgba(0,0,0,0.04)] transition"
+              className="group relative flex h-[320px] w-[200px] overflow-hidden rounded-brand border border-espresso/[0.08] bg-blush shadow-[0_8px_25px_rgba(0,0,0,0.04)] transition"
             >
-              <div className="w-full flex-1 overflow-hidden bg-blush">
-                {category.representativeImage ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={category.representativeImage}
-                    alt={category.laceType}
-                    className="h-full w-full object-cover transition duration-500 ease-out group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center">
-                    <span className="font-heading text-2xl italic text-bronze">LL</span>
-                  </div>
-                )}
-              </div>
-              <div className="flex shrink-0 flex-col justify-center gap-0.5 px-3 py-2.5">
-                <h3 className="line-clamp-1 font-heading text-[18px] font-medium text-espresso lg:text-[20px]">
-                  {category.laceType}
-                </h3>
-              </div>
+              {category.representativeImage ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={category.representativeImage}
+                  alt={category.laceType}
+                  className="h-full w-full object-cover transition duration-500 ease-out group-hover:scale-105"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center">
+                  <span className="font-heading text-2xl italic text-bronze">LL</span>
+                </div>
+              )}
+
+              {/* Gradient overlay + overlaid label — Shop by Category only,
+                  per the request to drop the separate info box beneath the
+                  image that every other product card still uses. */}
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-espresso/85 to-transparent" />
+              <h3 className="absolute inset-x-0 bottom-0 line-clamp-1 px-3 py-3 font-sans text-[18px] font-semibold text-ivory [text-shadow:0_1px_2px_rgba(0,0,0,0.5)] lg:text-[20px]">
+                {category.laceType}
+              </h3>
             </Link>
           </div>
         ))}

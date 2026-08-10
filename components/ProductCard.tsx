@@ -41,13 +41,13 @@ export default function ProductCard({ product }: { product: ProductSummary }) {
         )}
       </div>
 
-      <div className="flex shrink-0 flex-col gap-0.5 px-3 py-2.5">
+      <div className="flex shrink-0 flex-col gap-0.5 bg-ivory px-3 py-2.5">
         {product.lace_type && (
           <p className="line-clamp-1 font-label text-[11px] font-medium uppercase tracking-label text-bronze">
             {product.lace_type}
           </p>
         )}
-        <h3 className="line-clamp-1 font-heading text-[18px] font-medium text-espresso lg:text-[20px]">
+        <h3 className="line-clamp-1 font-sans text-[18px] font-semibold text-charcoal lg:text-[20px]">
           {product.name}
         </h3>
         {onSale && cheapestVariant ? (
@@ -55,12 +55,12 @@ export default function ProductCard({ product }: { product: ProductSummary }) {
             <span className="font-sans text-xs text-charcoal/40 line-through">
               {formatNaira(cheapestVariant.compare_at_price!)}
             </span>
-            <span className="font-sans text-[18px] font-semibold text-bronze lg:text-[22px]">
+            <span className="font-sans text-[14px] font-semibold text-bronze lg:text-[16px]">
               {formatNaira(fromPrice!)}
             </span>
           </p>
         ) : (
-          <p className="font-sans text-[18px] font-semibold text-espresso lg:text-[22px]">
+          <p className="font-sans text-[14px] font-semibold text-charcoal lg:text-[16px]">
             {fromPrice !== null ? formatNaira(fromPrice) : "Price unavailable"}
           </p>
         )}

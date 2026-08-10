@@ -92,6 +92,19 @@
      smaller 12px radius instead of sharing this one. */
   --radius-brand: 16px;
   --radius-button: 12px;
+
+  /* Announcement bar rotation — a quick cross-fade each time the rotator
+     swaps to the next message. */
+  --animate-announcement-fade: announcement-fade 0.4s ease;
+
+  @keyframes announcement-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
 }
 
 body {

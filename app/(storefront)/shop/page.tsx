@@ -62,8 +62,8 @@ export default async function ShopPage({
   return (
     <main className="flex min-h-screen flex-1 flex-col bg-ivory pb-20">
       <div className="mx-auto w-full max-w-content px-6 lg:px-[60px]">
-        <header className="mt-6 mb-8 text-center">
-          <h1 className="font-heading text-collection-title font-medium text-espresso">
+        <header className="mt-6 mb-8">
+          <h1 className="font-heading text-2xl font-medium text-espresso sm:text-3xl">
             Lace Collection
           </h1>
         </header>

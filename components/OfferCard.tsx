@@ -24,11 +24,11 @@ export default function OfferCard({ offer }: { offer: BundleOfferForShop }) {
           </div>
         )}
       </div>
-      <div className="flex shrink-0 flex-col gap-0.5 px-3 py-2.5">
+      <div className="flex shrink-0 flex-col gap-0.5 bg-ivory px-3 py-2.5">
         <p className="line-clamp-1 font-label text-[11px] font-medium uppercase tracking-label text-bronze">
           Bundle Offer
         </p>
-        <h3 className="line-clamp-1 font-heading text-[18px] font-medium text-espresso lg:text-[20px]">
+        <h3 className="line-clamp-1 font-sans text-[18px] font-semibold text-charcoal lg:text-[20px]">
           {offer.name}
         </h3>
         {onSale ? (
@@ -36,12 +36,12 @@ export default function OfferCard({ offer }: { offer: BundleOfferForShop }) {
             <span className="font-sans text-xs text-charcoal/40 line-through">
               {formatNaira(offer.originalPrice)}
             </span>
-            <span className="font-sans text-[18px] font-semibold text-bronze lg:text-[22px]">
+            <span className="font-sans text-[14px] font-semibold text-bronze lg:text-[16px]">
               {formatNaira(offer.bundle_price)}
             </span>
           </p>
         ) : (
-          <p className="font-sans text-[18px] font-semibold text-espresso lg:text-[22px]">
+          <p className="font-sans text-[14px] font-semibold text-charcoal lg:text-[16px]">
             {formatNaira(offer.bundle_price)}
           </p>
         )}

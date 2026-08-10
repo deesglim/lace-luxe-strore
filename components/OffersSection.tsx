@@ -14,7 +14,7 @@ export default function OffersSection({ offers }: { offers: BundleOfferForShop[]
 
   return (
     <section id="offers" className="border-t border-blush py-section">
-      <h2 className="mb-10 text-center font-heading font-medium text-2xl text-espresso sm:text-3xl">
+      <h2 className="mx-auto mb-10 w-full max-w-content px-6 text-left font-heading text-2xl font-medium text-espresso sm:text-3xl lg:px-[60px]">
         Special Offers
       </h2>
       <div className="mx-auto grid w-full max-w-content grid-cols-2 justify-items-center gap-x-5 gap-y-8 px-6 sm:gap-x-6 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-8 lg:px-[60px]">

@@ -11,7 +11,7 @@ export default function HomeHero({
 }) {
   return (
     <section
-      className={`relative -mt-[72px] flex min-h-[60vh] items-center justify-center overflow-hidden px-6 text-center lg:-mt-[88px] lg:min-h-[90vh] ${
+      className={`relative flex min-h-[85vh] items-center justify-center overflow-hidden px-6 text-center lg:min-h-[90vh] ${
         imageUrl ? "" : "bg-ivory"
       }`}
     >

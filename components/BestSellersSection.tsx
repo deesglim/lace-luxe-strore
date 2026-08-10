@@ -18,7 +18,7 @@ export default function BestSellersSection({
 
   return (
     <section className="border-t border-blush py-section">
-      <h2 className="mb-10 text-center font-heading font-medium text-2xl text-espresso sm:text-3xl">
+      <h2 className="mx-auto mb-10 w-full max-w-content px-6 text-left font-heading text-2xl font-medium text-espresso sm:text-3xl lg:px-[60px]">
         Best Sellers
       </h2>
       {layout === "grid" ? (

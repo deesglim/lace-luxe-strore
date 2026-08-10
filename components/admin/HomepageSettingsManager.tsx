@@ -40,12 +40,6 @@ export default function HomepageSettingsManager({
       : [],
   );
   const [removedImageUrl, setRemovedImageUrl] = useState<string | null>(null);
-  const [announcementText, setAnnouncementText] = useState(
-    initialSettings?.announcement_text ?? "",
-  );
-  const [announcementActive, setAnnouncementActive] = useState(
-    initialSettings?.announcement_active ?? false,
-  );
   const [settingsId, setSettingsId] = useState<string | null>(
     initialSettings?.id ?? null,
   );
@@ -115,8 +109,6 @@ export default function HomepageSettingsManager({
       hero_image_url: imageUrl,
       hero_heading: heading.trim() || null,
       hero_subheading: subheading.trim() || null,
-      announcement_text: announcementText.trim() || null,
-      announcement_active: announcementActive,
     };
 
     if (settingsId) {
@@ -193,32 +185,6 @@ export default function HomepageSettingsManager({
             className={inputClass}
           />
         </Field>
-      </div>
-
-      <div className="flex flex-col gap-4 rounded-md border border-blush p-6">
-        <h2 className="font-heading text-xl text-espresso">Announcement Bar</h2>
-        <p className="font-sans text-xs text-charcoal/60">
-          Shown as a slim bar above the header on every storefront page, only
-          while active.
-        </p>
-
-        <Field label="Announcement Text">
-          <input
-            value={announcementText}
-            onChange={(e) => setAnnouncementText(e.target.value)}
-            placeholder="e.g. Free shipping on orders over ₦50,000"
-            className={inputClass}
-          />
-        </Field>
-
-        <label className="flex items-center gap-2 font-sans text-sm text-charcoal">
-          <input
-            type="checkbox"
-            checked={announcementActive}
-            onChange={(e) => setAnnouncementActive(e.target.checked)}
-          />
-          Active
-        </label>
       </div>
 
       <button

@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import AnnouncementRotator from "@/components/AnnouncementRotator";
 
 type NavLink = { href: string; label: string };
+type Announcement = { id: string; text: string };
 
 function SearchGlyph() {
   return (
@@ -15,17 +17,22 @@ function SearchGlyph() {
   );
 }
 
-// Transparent over the homepage hero until the page scrolls, then (and on
-// every other page, immediately) a solid sticky bar. Sticky rather than
-// fixed so it always reserves its own flow height — HomeHero pulls itself
-// up behind it with a matching negative margin instead of every other page
-// needing compensating top padding.
+// Homepage: fixed, so it never reserves flow space — HomeHero sits at the
+// true top of the document and the header floats transparently over it via
+// z-index, with no negative margins involved anywhere. Every other page:
+// sticky, reserving its own height normally (unchanged, zero regression —
+// those pages' own top padding was already sized for a header that takes
+// up real flow space). Because isHome never changes mid-scroll (only on
+// navigation), this never toggles position type while the page is static,
+// so there's no layout jump — only the background/text color transitions.
 export default function HeaderChrome({
   navLinks,
   accountSlot,
+  announcements,
 }: {
   navLinks: NavLink[];
   accountSlot: ReactNode;
+  announcements: Announcement[];
 }) {
   const pathname = usePathname();
   const isHome = pathname === "/";
@@ -51,16 +58,18 @@ export default function HeaderChrome({
 
   return (
     <header
-      className={`sticky top-0 z-40 transition-colors duration-300 ${
+      className={`${isHome ? "fixed" : "sticky"} inset-x-0 top-0 z-40 transition-colors duration-300 ${
         transparent
           ? "bg-transparent"
           : "border-b border-blush bg-ivory shadow-sm"
       }`}
     >
+      <AnnouncementRotator messages={announcements.map((a) => a.text)} />
+
       <div className="mx-auto flex h-[72px] max-w-page items-center justify-between px-6 lg:h-[88px] lg:px-[60px]">
         <Link
           href="/"
-          className={`font-logo text-2xl font-semibold transition-colors md:text-3xl ${
+          className={`font-logo text-lg font-semibold transition-colors md:text-xl ${
             transparent ? "text-ivory" : "text-espresso"
           }`}
         >
