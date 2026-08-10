@@ -159,12 +159,13 @@ export async function getProductByIdForAdmin(
 export type ProductRecommendationDisplay = {
   id: string;
   reason_label: string | null;
-  recommended_product: Pick<Product, "id" | "name" | "slug"> | null;
+  recommended_product: Pick<Product, "id" | "name" | "slug" | "images"> | null;
 };
 
-// Public-facing: embeds the recommended product's name/slug for rendering
-// the "Choose [name]" link. The FK hint disambiguates which of the two
-// foreign keys to products (product_id vs recommended_product_id) to embed.
+// Public-facing: embeds the recommended product's name/slug/images for
+// rendering an actual card (not just a text link). The FK hint
+// disambiguates which of the two foreign keys to products (product_id vs
+// recommended_product_id) to embed.
 export async function getProductRecommendations(
   productId: string,
 ): Promise<ProductRecommendationDisplay[]> {
@@ -172,7 +173,7 @@ export async function getProductRecommendations(
   const { data, error } = await supabase
     .from("product_recommendations")
     .select(
-      "id, reason_label, recommended_product:products!product_recommendations_recommended_product_id_fkey(id, name, slug)",
+      "id, reason_label, recommended_product:products!product_recommendations_recommended_product_id_fkey(id, name, slug, images)",
     )
     .eq("product_id", productId)
     .order("created_at", { ascending: true });

@@ -5,7 +5,6 @@ import HomeHero from "@/components/HomeHero";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import OffersTeaser from "@/components/OffersTeaser";
 import TestimonialsSection from "@/components/TestimonialsSection";
-import TrustBadges from "@/components/TrustBadges";
 import type { BundleOfferForShop } from "@/lib/bundleOffers";
 import { getActiveBundleOffersForShop } from "@/lib/bundleOffers";
 import { getStoreSettings } from "@/lib/deliveryOptions";
@@ -82,7 +81,6 @@ export default async function Home() {
       <OffersTeaser offers={offers} />
       <TestimonialsSection reviews={reviews} />
       <CustomerShowcaseSection items={showcaseItems} />
-      <TrustBadges />
       <NewsletterSignup />
     </main>
   );

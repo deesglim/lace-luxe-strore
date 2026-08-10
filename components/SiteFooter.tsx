@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { socialLinks } from "@/components/SocialLinks";
+import TrustBadges from "@/components/TrustBadges";
 
 const customerCareLinks = [
   { href: "/shipping-info", label: "Shipping Information" },
@@ -39,14 +40,16 @@ function FooterColumnHeading({ children }: { children: string }) {
 export default function SiteFooter() {
   return (
     <footer className="bg-espresso text-ivory">
-      <div className="mx-auto w-full max-w-page px-6 pt-[80px] pb-[40px] lg:px-[60px]">
+      <div className="mx-auto w-full max-w-page px-6 pt-[56px] pb-[40px] lg:px-[60px] lg:pt-[64px]">
+        <TrustBadges />
+
         {/*
           Always a 4-column row, at every breakpoint — never stacks, never
           scrolls. Text/icon size and gaps shrink progressively on narrower
           screens instead, so all four columns stay on screen without
           horizontal overflow.
         */}
-        <div className="grid grid-cols-4 gap-1 text-left sm:gap-2 md:gap-3 lg:gap-5">
+        <div className="mt-8 grid grid-cols-4 gap-1 border-t border-ivory/10 pt-8 text-left sm:mt-10 sm:gap-2 sm:pt-10 md:gap-3 lg:gap-5">
           <div className="flex min-w-0 flex-col items-start gap-1.5 sm:gap-3">
             <Link
               href="/"

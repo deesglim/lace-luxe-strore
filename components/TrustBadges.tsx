@@ -53,26 +53,28 @@ const badges = [
   { Icon: HeartIcon, label: "1000+ Happy Customers" },
 ];
 
+// Lives inside SiteFooter now (site-wide, every page) rather than as its
+// own mid-page section — just the row itself, styled for the footer's dark
+// espresso background. The footer controls the surrounding spacing so it
+// sits flush with no extra gap of its own.
 export default function TrustBadges() {
   return (
-    <section className="border-t border-blush py-section">
+    <div className="grid w-full grid-cols-4 gap-2 sm:gap-4 lg:gap-8">
       {/*
         Always a 4-column row, at every breakpoint — never wraps/stacks.
         Icon size, text size, and gaps shrink progressively on narrower
-        screens instead, same approach as the footer's row fix.
+        screens instead, same approach as the footer's link-row fix.
       */}
-      <div className="mx-auto grid w-full max-w-content grid-cols-4 gap-2 px-6 sm:gap-4 lg:gap-8 lg:px-[60px]">
-        {badges.map(({ Icon, label }) => (
-          <div key={label} className="flex min-w-0 flex-col items-center gap-1.5 text-center sm:gap-3">
-            <span className="text-bronze [&>svg]:h-4 [&>svg]:w-4 sm:[&>svg]:h-5 sm:[&>svg]:w-5 lg:[&>svg]:h-7 lg:[&>svg]:w-7">
-              <Icon />
-            </span>
-            <p className="line-clamp-2 font-sans text-[9px] uppercase leading-tight tracking-[0.1em] text-charcoal/70 sm:text-[10px] sm:tracking-[0.15em] lg:text-xs">
-              {label}
-            </p>
-          </div>
-        ))}
-      </div>
-    </section>
+      {badges.map(({ Icon, label }) => (
+        <div key={label} className="flex min-w-0 flex-col items-center gap-1.5 text-center sm:gap-3">
+          <span className="text-bronze [&>svg]:h-4 [&>svg]:w-4 sm:[&>svg]:h-5 sm:[&>svg]:w-5 lg:[&>svg]:h-6 lg:[&>svg]:w-6">
+            <Icon />
+          </span>
+          <p className="line-clamp-2 font-sans text-[9px] uppercase leading-tight tracking-[0.1em] text-ivory/70 sm:text-[10px] sm:tracking-[0.15em] lg:text-xs">
+            {label}
+          </p>
+        </div>
+      ))}
+    </div>
   );
 }

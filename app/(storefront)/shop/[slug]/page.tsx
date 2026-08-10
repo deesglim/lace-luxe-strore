@@ -3,7 +3,6 @@ import ProductDetailsTabs from "@/components/ProductDetailsTabs";
 import ProductGallery from "@/components/ProductGallery";
 import ProductPurchaseFlow from "@/components/ProductPurchaseFlow";
 import ProductRecommendations from "@/components/ProductRecommendations";
-import TrustBadges from "@/components/TrustBadges";
 import ReviewsSection from "@/components/ReviewsSection";
 import {
   getApprovedReviews,
@@ -83,23 +82,8 @@ export default async function ProductDetailPage({
     recommendations = [];
   }
 
-  // Lace specs summary for the Details tab — built from real structured
-  // data only (lace_type, and the distinct size/color values already on
-  // the variants). No dedicated "material"/"thickness" columns exist yet,
-  // so those rows are omitted rather than guessed at from free text.
-  const availableSizes = Array.from(
-    new Set(product.product_variants.map((v) => v.size_label)),
-  ).join(", ");
-  const availableColors = Array.from(
-    new Set(
-      product.product_variants.flatMap((v) =>
-        v.product_variant_colors.map((c) => c.color_name),
-      ),
-    ),
-  ).join(", ");
-
   return (
-    <main className="flex min-h-screen flex-1 flex-col bg-ivory py-20">
+    <main className="flex min-h-screen flex-1 flex-col bg-ivory">
       {/*
         Mobile: single column, DOM order = required order (1. image,
         2. thumbnails come from ProductGallery; 3-9 come from
@@ -110,49 +94,51 @@ export default async function ProductDetailPage({
         only needs `lg:col-start-1`, the purchase flow only needs
         `lg:col-start-2`; no per-item row placement needed since each
         column's content is already one contiguous DOM block.
+
+        The gallery/buy-box split sits on a soft blush band so the
+        purchase-flow card (which styles itself as an elevated ivory
+        card) visibly floats above it — the boldest use of blush as a
+        real background rather than just a border/accent color.
       */}
-      <div className="mx-auto w-full max-w-content px-6 lg:px-[60px]">
-        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[3fr_2fr] lg:items-start lg:gap-16">
-          <div className="lg:col-start-1">
-            <ProductGallery images={product.images} productName={product.name} />
-          </div>
-          <div className="lg:col-start-2">
-            <ProductPurchaseFlow
-              variants={product.product_variants}
-              reviews={reviews}
-              images={product.images}
-              productName={product.name}
-              productId={product.id}
-              productSlug={product.slug}
-              laceType={product.lace_type}
-              description={product.description}
-            />
+      <section className="bg-blush/25 py-10 lg:py-16">
+        <div className="mx-auto w-full max-w-content px-6 lg:px-[60px]">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-[3fr_2fr] lg:items-start lg:gap-16">
+            <div className="lg:col-start-1">
+              <ProductGallery images={product.images} productName={product.name} />
+            </div>
+            <div className="lg:col-start-2">
+              <ProductPurchaseFlow
+                variants={product.product_variants}
+                reviews={reviews}
+                images={product.images}
+                productName={product.name}
+                productId={product.id}
+                productSlug={product.slug}
+                laceType={product.lace_type}
+                description={product.description}
+              />
+            </div>
           </div>
         </div>
+      </section>
 
+      <div className="mx-auto w-full max-w-content px-6 pb-16 lg:px-[60px] lg:pb-20">
         {/* 10. Product details tabs */}
         <ProductDetailsTabs
-          laceType={product.lace_type}
-          availableColors={availableColors}
-          availableSizes={availableSizes}
           whyChoose={product.why_choose}
           whyNotChoose={product.why_not_choose}
         />
-
-        {/* 11. Related products */}
-        <ProductRecommendations recommendations={recommendations} />
       </div>
 
-      <TrustBadges />
+      {/* 11. Related products — full-bleed espresso band, its own
+          container/padding inside ProductRecommendations. */}
+      <ProductRecommendations recommendations={recommendations} />
 
-      <div
-        id="reviews"
-        className="mx-auto w-full max-w-content border-t border-blush px-6 pt-12 lg:px-[60px]"
-      >
-        <div className="flex flex-col gap-10">
+      <section id="reviews" className="bg-blush/15 py-16 lg:py-20">
+        <div className="mx-auto w-full max-w-content px-6 lg:px-[60px]">
           <ReviewsSection reviews={reviews} productId={product.id} />
         </div>
-      </div>
+      </section>
     </main>
   );
 }

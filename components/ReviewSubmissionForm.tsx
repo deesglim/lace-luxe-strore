@@ -60,15 +60,18 @@ export default function ReviewSubmissionForm({ productId }: { productId: string 
 
   if (submitted) {
     return (
-      <p className="rounded-md border border-blush bg-blush/20 px-4 py-3 font-sans text-sm text-espresso">
+      <p className="rounded-brand border border-blush bg-blush/20 px-4 py-3 font-sans text-sm text-espresso">
         Thanks! Your review is pending approval and will appear soon.
       </p>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 border-t border-blush pt-8">
-      <h3 className="font-heading text-lg text-espresso">Write a Review</h3>
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-4 rounded-brand border border-blush bg-blush/10 p-6"
+    >
+      <h3 className="font-heading text-lg font-medium text-espresso">Write a Review</h3>
 
       <div className="absolute left-[-9999px] top-auto h-0 w-0 overflow-hidden">
         <label htmlFor="review-website">Website</label>
@@ -89,7 +92,7 @@ export default function ReviewSubmissionForm({ productId }: { productId: string 
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="rounded-md border border-charcoal/20 bg-ivory px-3 py-2 font-sans text-sm text-charcoal focus:border-espresso focus:outline-none"
+          className="rounded-brand border border-charcoal/20 bg-ivory px-3 py-2 font-sans text-sm text-charcoal focus:border-bronze focus:outline-none"
         />
       </label>
 
@@ -120,7 +123,7 @@ export default function ReviewSubmissionForm({ productId }: { productId: string 
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           rows={4}
-          className="rounded-md border border-charcoal/20 bg-ivory px-3 py-2 font-sans text-sm text-charcoal focus:border-espresso focus:outline-none"
+          className="rounded-brand border border-charcoal/20 bg-ivory px-3 py-2 font-sans text-sm text-charcoal focus:border-bronze focus:outline-none"
         />
       </label>
 
@@ -129,7 +132,7 @@ export default function ReviewSubmissionForm({ productId }: { productId: string 
       <button
         type="submit"
         disabled={submitting}
-        className="self-start rounded-md bg-espresso px-6 py-3 font-sans text-sm uppercase tracking-[0.2em] text-ivory transition hover:bg-espresso/90 disabled:opacity-50"
+        className="self-start rounded-full bg-espresso px-6 py-3 font-sans text-sm uppercase tracking-[0.2em] text-ivory transition hover:bg-espresso/90 disabled:opacity-50"
       >
         {submitting ? "Submitting…" : "Submit Review"}
       </button>
