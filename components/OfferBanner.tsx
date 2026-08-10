@@ -7,7 +7,7 @@ import type { BundleOfferForShop } from "@/lib/bundleOffers";
 // page has no category-filter UI yet to deep-link a scoped category into).
 export default function OfferBanner({ offer }: { offer: BundleOfferForShop }) {
   return (
-    <div className="col-span-full flex flex-col items-center justify-between gap-4 rounded-md border border-bronze/40 bg-espresso px-6 py-10 text-center sm:flex-row sm:text-left">
+    <div className="flex flex-col items-center justify-between gap-4 rounded-md border border-bronze/40 bg-espresso px-6 py-10 text-center sm:flex-row sm:text-left">
       <div className="flex flex-col gap-2">
         <p className="font-sans text-xs uppercase tracking-[0.3em] text-bronze">
           Limited-Time Offer

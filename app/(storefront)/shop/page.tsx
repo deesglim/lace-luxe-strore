@@ -1,19 +1,28 @@
 import Link from "next/link";
 import BestSellersSection from "@/components/BestSellersSection";
 import OffersSection from "@/components/OffersSection";
-import ProductGridCard from "@/components/ProductGridCard";
+import ProductCard from "@/components/ProductCard";
 import type { BundleOfferForShop } from "@/lib/bundleOffers";
 import { getActiveBundleOffersForShop } from "@/lib/bundleOffers";
 import { getActiveProducts, type ProductSummary } from "@/lib/products";
 
 export const dynamic = "force-dynamic";
 
+function matchesSearch(product: ProductSummary, term: string): boolean {
+  const haystack = [product.name, product.description, product.lace_type]
+    .filter((value): value is string => Boolean(value))
+    .join(" ")
+    .toLowerCase();
+  return haystack.includes(term);
+}
+
 export default async function ShopPage({
   searchParams,
 }: {
-  searchParams: Promise<{ type?: string }>;
+  searchParams: Promise<{ type?: string; search?: string }>;
 }) {
-  const { type } = await searchParams;
+  const { type, search } = await searchParams;
+  const searchTerm = search?.trim().toLowerCase() ?? "";
 
   let products: ProductSummary[] = [];
   let productsError = false;
@@ -35,73 +44,119 @@ export default async function ShopPage({
     offers = [];
   }
 
-  // The type filter only narrows the main grid — Best Sellers and Special
-  // Offers below are about promoting things, not browsing a category, so
-  // they stay showing everything regardless.
-  const filteredProducts = type
+  // Type filter, then search — both narrow the main grid only. Best
+  // Sellers and Special Offers below are about promoting things, not
+  // browsing/searching, so they stay showing everything regardless — except
+  // while a search is active, where they'd just be noise around the
+  // results the customer specifically asked for, so they hide entirely.
+  const typeFiltered = type
     ? products.filter((product) => product.lace_type === type)
     : products;
+  const filteredProducts = searchTerm
+    ? typeFiltered.filter((product) => matchesSearch(product, searchTerm))
+    : typeFiltered;
+
+  const clearSearchHref = type ? `/shop?type=${encodeURIComponent(type)}` : "/shop";
+  const clearTypeHref = search ? `/shop?search=${encodeURIComponent(search)}` : "/shop";
 
   return (
-    <main className="flex min-h-screen flex-1 flex-col bg-ivory py-20">
-      <div className="mx-auto w-full max-w-content px-6 sm:px-12">
-        <header className="mb-16">
-          <h1 className="font-heading text-4xl font-medium text-espresso sm:text-5xl">
+    <main className="flex min-h-screen flex-1 flex-col bg-ivory pb-20">
+      <div className="mx-auto w-full max-w-content px-6 lg:px-[60px]">
+        <header className="mt-6 mb-8 text-center">
+          <h1 className="font-heading text-collection-title font-medium text-espresso">
             Lace Collection
           </h1>
-          <p className="mt-3 font-sans text-sm text-charcoal/70">
-            Choose the lace that fits into your client and your result
-          </p>
         </header>
 
-        <section className="mb-20">
-          {type && (
-            <p className="mb-6 text-center font-sans text-sm text-charcoal/70">
-              Showing <span className="text-espresso">{type}</span> ·{" "}
-              <Link
-                href="/shop"
-                className="text-bronze underline underline-offset-4"
-              >
-                Clear filter
-              </Link>
-            </p>
-          )}
+        {type && (
+          <p className="mb-3 text-center font-sans text-sm text-charcoal/70">
+            Showing <span className="text-espresso">{type}</span> ·{" "}
+            <Link href={clearTypeHref} className="text-bronze underline underline-offset-4">
+              Clear filter
+            </Link>
+          </p>
+        )}
 
-          {productsError ? (
+        {search && (
+          <p className="mb-6 text-center font-sans text-sm text-charcoal/70">
+            Showing results for &ldquo;<span className="text-espresso">{search}</span>&rdquo; ·{" "}
+            <Link href={clearSearchHref} className="text-bronze underline underline-offset-4">
+              Clear search
+            </Link>
+          </p>
+        )}
+
+        {productsError ? (
+          <div className="mb-10">
             <EmptyState
               title="Something went wrong"
               message="We couldn't load the collection right now. Please refresh or try again shortly."
             />
-          ) : filteredProducts.length === 0 ? (
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          <div className="mb-10">
             <EmptyState
-              title={type ? "No pieces in this category yet" : "New arrivals coming soon"}
-              message={
-                type
-                  ? "Check back soon, or browse the full collection instead."
-                  : "We're putting the finishing touches on the collection. Check back soon."
+              title={
+                search
+                  ? `No products found for "${search}"`
+                  : type
+                    ? "No pieces in this category yet"
+                    : "New arrivals coming soon"
               }
+              message={
+                search
+                  ? "Try a different search term, or browse the full collection instead."
+                  : type
+                    ? "Check back soon, or browse the full collection instead."
+                    : "We're putting the finishing touches on the collection. Check back soon."
+              }
+              showBackLink={Boolean(search || type)}
             />
-          ) : (
-            <div className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-3 lg:gap-8">
-              {filteredProducts.map((product) => (
-                <ProductGridCard key={product.id} product={product} />
-              ))}
-            </div>
-          )}
-        </section>
+          </div>
+        ) : null}
       </div>
 
-      <OffersSection offers={offers} />
-      <BestSellersSection products={products} />
+      {!productsError && filteredProducts.length > 0 && (
+        <section className="mb-10">
+          <div className="mx-auto grid w-full max-w-content grid-cols-2 justify-items-center gap-x-5 gap-y-8 px-6 sm:gap-x-6 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-8 lg:px-[60px]">
+            {filteredProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {!search && (
+        <>
+          <OffersSection offers={offers} />
+          <BestSellersSection products={products} layout="grid" />
+        </>
+      )}
     </main>
   );
 }
 
-function EmptyState({ title, message }: { title: string; message: string }) {
+function EmptyState({
+  title,
+  message,
+  showBackLink,
+}: {
+  title: string;
+  message: string;
+  showBackLink?: boolean;
+}) {
   return (
     <div className="flex flex-col items-center gap-3 py-24 text-center">
       <h2 className="font-heading text-2xl text-espresso">{title}</h2>
       <p className="max-w-sm font-sans text-sm text-charcoal/70">{message}</p>
+      {showBackLink && (
+        <Link
+          href="/shop"
+          className="mt-2 font-sans text-sm uppercase tracking-[0.2em] text-bronze underline underline-offset-4"
+        >
+          Back to Shop
+        </Link>
+      )}
     </div>
   );
 }

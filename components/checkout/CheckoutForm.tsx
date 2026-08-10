@@ -11,7 +11,7 @@ import { formatNaira } from "@/lib/format";
 import type { DeliveryOption, Promotion } from "@/types";
 
 const inputClass =
-  "rounded-md border border-charcoal/20 bg-ivory px-3 py-2 font-sans text-sm text-charcoal focus:border-espresso focus:outline-none";
+  "h-14 rounded-button border border-charcoal/15 bg-ivory px-4 font-sans text-sm text-charcoal focus:border-espresso focus:outline-none";
 
 // Customer-facing category copy differs slightly from the admin dashboard's
 // (which mirrors the DB category name) — override just the display label here.
@@ -21,8 +21,8 @@ const CHECKOUT_CATEGORY_LABELS: Partial<Record<DeliveryOption["category"], strin
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <label className="flex flex-col gap-1 font-sans text-sm text-charcoal">
-      <span className="text-xs uppercase tracking-[0.15em] text-bronze">
+    <label className="flex flex-col gap-2 font-sans text-sm text-charcoal">
+      <span className="font-label text-xs font-medium uppercase tracking-label text-bronze">
         {label}
       </span>
       {children}
@@ -185,7 +185,7 @@ export default function CheckoutForm({
   }
 
   return (
-    <main className="flex min-h-screen flex-1 flex-col bg-ivory px-6 py-20">
+    <main className="flex min-h-screen flex-1 flex-col bg-ivory px-6 py-20 lg:px-[60px]">
       <div className="mx-auto w-full max-w-5xl">
         <Link
           href="/cart"
@@ -193,10 +193,10 @@ export default function CheckoutForm({
         >
           ← Back to Cart
         </Link>
-        <h1 className="mb-10 font-heading text-3xl text-espresso">Checkout</h1>
+        <h1 className="mb-10 font-heading text-3xl font-medium text-espresso">Checkout</h1>
 
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_380px]">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-12">
             {error && (
               <p className="rounded-md border border-bronze bg-blush/40 px-4 py-3 font-sans text-sm text-espresso">
                 {error}
@@ -301,7 +301,7 @@ export default function CheckoutForm({
                         onClick={() =>
                           handleCategoryClick(group.category, group.options)
                         }
-                        className={`flex cursor-pointer items-center justify-between gap-3 rounded-md border px-4 py-3 text-left font-sans text-sm transition ${
+                        className={`flex cursor-pointer items-center justify-between gap-3 rounded-button border px-4 py-3 text-left font-sans text-sm transition ${
                           isOpen || isSelected
                             ? "border-espresso bg-espresso/5"
                             : "border-charcoal/20 hover:border-bronze"
@@ -331,7 +331,7 @@ export default function CheckoutForm({
                             return (
                               <label
                                 key={option.id}
-                                className={`flex cursor-pointer items-center justify-between gap-3 rounded-md border px-4 py-3 font-sans text-sm transition ${
+                                className={`flex cursor-pointer items-center justify-between gap-3 rounded-button border px-4 py-3 font-sans text-sm transition ${
                                   selected
                                     ? "border-espresso bg-espresso/5"
                                     : "border-charcoal/20 hover:border-bronze"
@@ -418,14 +418,14 @@ export default function CheckoutForm({
               title={
                 !deliveryOptionId ? "Select a delivery method to continue" : undefined
               }
-              className="rounded-md bg-espresso px-6 py-3 font-sans text-sm uppercase tracking-[0.2em] text-ivory transition hover:bg-espresso/90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="h-14 rounded-button bg-espresso px-6 font-sans text-sm uppercase tracking-[0.2em] text-ivory transition hover:bg-espresso/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {submitting ? "Placing Order…" : "Place Order"}
             </button>
           </form>
 
-          <div className="h-fit rounded-md border border-blush bg-ivory p-6">
-            <h2 className="mb-4 font-heading text-xl text-espresso">
+          <div className="h-fit rounded-brand border border-blush bg-ivory p-6 shadow-[0_8px_25px_rgba(0,0,0,0.04)]">
+            <h2 className="mb-4 font-heading text-xl font-medium text-espresso">
               Order Summary
             </h2>
             <div className="flex flex-col divide-y divide-blush">
@@ -434,7 +434,7 @@ export default function CheckoutForm({
                   key={item.id}
                   className="flex items-center gap-3 py-4 first:pt-0 last:pb-0"
                 >
-                  <div className="h-16 w-16 shrink-0 overflow-hidden rounded-md bg-blush">
+                  <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-blush">
                     {item.image ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -468,8 +468,8 @@ export default function CheckoutForm({
             </div>
 
             <div className="mt-4 flex flex-col gap-2 border-t border-blush pt-4">
-              <label className="flex flex-col gap-1 font-sans text-sm text-charcoal">
-                <span className="text-xs uppercase tracking-[0.15em] text-bronze">
+              <label className="flex flex-col gap-2 font-sans text-sm text-charcoal">
+                <span className="font-label text-xs font-medium uppercase tracking-label text-bronze">
                   Discount Code
                 </span>
                 <div className="flex gap-2">
@@ -486,7 +486,7 @@ export default function CheckoutForm({
                     type="button"
                     onClick={handleApplyCode}
                     disabled={!promoCodeInput.trim()}
-                    className="shrink-0 rounded-md border border-espresso px-4 py-2 font-sans text-xs uppercase tracking-[0.15em] text-espresso transition hover:bg-espresso hover:text-ivory disabled:cursor-not-allowed disabled:opacity-50"
+                    className="h-14 shrink-0 rounded-button border border-espresso px-4 font-sans text-xs uppercase tracking-[0.15em] text-espresso transition hover:bg-espresso hover:text-ivory disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Apply
                   </button>

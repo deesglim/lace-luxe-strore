@@ -24,7 +24,7 @@ const VARIANT_WITH_COLORS_FIELDS =
 
 export type ProductSummary = Pick<
   Product,
-  "id" | "name" | "slug" | "lace_type" | "images" | "is_best_seller"
+  "id" | "name" | "slug" | "description" | "lace_type" | "images" | "is_best_seller"
 > & {
   product_variants: VariantSummary[];
 };
@@ -38,7 +38,7 @@ export async function getActiveProducts(): Promise<ProductSummary[]> {
   const { data, error } = await supabase
     .from("products")
     .select(
-      "id, name, slug, lace_type, images, is_best_seller, product_variants(price, compare_at_price)",
+      "id, name, slug, description, lace_type, images, is_best_seller, product_variants(price, compare_at_price)",
     )
     .eq("active", true)
     .order("created_at", { ascending: false });

@@ -55,14 +55,19 @@ const badges = [
 
 export default function TrustBadges() {
   return (
-    <section className="border-t border-blush py-section md:py-section-md lg:py-section-lg">
-      <div className="mx-auto grid w-full max-w-content grid-cols-2 gap-8 px-6 sm:grid-cols-4 sm:px-12">
+    <section className="border-t border-blush py-section">
+      {/*
+        Always a 4-column row, at every breakpoint — never wraps/stacks.
+        Icon size, text size, and gaps shrink progressively on narrower
+        screens instead, same approach as the footer's row fix.
+      */}
+      <div className="mx-auto grid w-full max-w-content grid-cols-4 gap-2 px-6 sm:gap-4 lg:gap-8 lg:px-[60px]">
         {badges.map(({ Icon, label }) => (
-          <div key={label} className="flex flex-col items-center gap-3 text-center">
-            <span className="text-bronze">
+          <div key={label} className="flex min-w-0 flex-col items-center gap-1.5 text-center sm:gap-3">
+            <span className="text-bronze [&>svg]:h-4 [&>svg]:w-4 sm:[&>svg]:h-5 sm:[&>svg]:w-5 lg:[&>svg]:h-7 lg:[&>svg]:w-7">
               <Icon />
             </span>
-            <p className="font-sans text-xs uppercase tracking-[0.15em] text-charcoal/70">
+            <p className="line-clamp-2 font-sans text-[9px] uppercase leading-tight tracking-[0.1em] text-charcoal/70 sm:text-[10px] sm:tracking-[0.15em] lg:text-xs">
               {label}
             </p>
           </div>

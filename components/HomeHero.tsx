@@ -11,7 +11,7 @@ export default function HomeHero({
 }) {
   return (
     <section
-      className={`relative flex min-h-[75vh] items-center justify-center overflow-hidden px-6 text-center lg:min-h-[90vh] ${
+      className={`relative -mt-[72px] flex min-h-[60vh] items-center justify-center overflow-hidden px-6 text-center lg:-mt-[88px] lg:min-h-[90vh] ${
         imageUrl ? "" : "bg-ivory"
       }`}
     >
@@ -29,11 +29,11 @@ export default function HomeHero({
       )}
 
       <div className="relative z-10 flex w-full max-w-[600px] flex-col items-center gap-6">
-        <span className="font-sans text-nav font-medium uppercase tracking-brand text-bronze">
+        <span className="font-label text-xs font-medium uppercase tracking-label text-bronze">
           EST. 2026
         </span>
         <h1
-          className={`font-heading text-hero font-bold tracking-brand md:text-hero-md lg:text-hero-lg ${
+          className={`font-heading text-hero font-medium leading-[1.1] md:text-hero-md lg:text-hero-lg ${
             imageUrl ? "text-ivory" : "text-espresso"
           }`}
         >
@@ -41,7 +41,7 @@ export default function HomeHero({
         </h1>
         <div className="h-px w-24 bg-blush" />
         <p
-          className={`font-sans text-body font-normal ${
+          className={`font-sans text-body font-normal leading-body ${
             imageUrl ? "text-ivory/85" : "text-charcoal/70"
           }`}
         >
@@ -51,20 +51,16 @@ export default function HomeHero({
         <div className="mt-2 flex flex-wrap items-center justify-center gap-4">
           <Link
             href="/shop"
-            className={`rounded-md px-8 py-3 font-sans text-button font-semibold uppercase tracking-brand transition ${
-              imageUrl
-                ? "bg-ivory text-espresso hover:bg-blush"
-                : "bg-espresso text-ivory hover:bg-espresso/90"
-            }`}
+            className="flex h-14 items-center justify-center rounded-button bg-espresso px-8 font-sans text-button font-semibold uppercase tracking-brand text-ivory transition hover:bg-espresso/90"
           >
             SHOP NOW
           </Link>
           <Link
             href="/shop"
-            className={`rounded-md border px-8 py-3 font-sans text-button font-semibold uppercase tracking-brand transition ${
+            className={`flex h-14 items-center justify-center rounded-button border px-8 font-sans text-button font-semibold uppercase tracking-brand transition ${
               imageUrl
-                ? "border-ivory/60 text-ivory hover:bg-ivory/10"
-                : "border-espresso text-espresso hover:bg-espresso hover:text-ivory"
+                ? "border-ivory/50 text-ivory hover:bg-ivory/10"
+                : "border-espresso/40 text-espresso hover:bg-espresso hover:text-ivory"
             }`}
           >
             VIEW COLLECTION

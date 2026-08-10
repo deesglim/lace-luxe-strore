@@ -58,16 +58,6 @@ export default function ProductPurchaseFlow({
 
   const [quantity, setQuantity] = useState(1);
 
-  // Product details table — built from real structured data only
-  // (lace_type, and the distinct size/color values already on the
-  // variants). No dedicated "material"/"thickness" columns exist yet, and
-  // this phase is about layout, not adding new admin-editable fields, so
-  // those two rows are omitted rather than guessed at from free text.
-  const availableSizes = Array.from(new Set(variants.map((v) => v.size_label))).join(", ");
-  const availableColors = Array.from(
-    new Set(variants.flatMap((v) => v.product_variant_colors.map((c) => c.color_name))),
-  ).join(", ");
-
   if (!selectedVariant) {
     return (
       <p className="font-sans text-sm text-charcoal/70">
@@ -115,7 +105,7 @@ export default function ProductPurchaseFlow({
   return (
     <div className="flex flex-col gap-6">
       {/* 3. Product title */}
-      <h1 className="font-heading text-product-title font-bold text-espresso lg:text-product-title-lg">
+      <h1 className="font-heading text-product-title font-medium leading-tight text-espresso md:text-product-title-md lg:text-product-title-lg">
         {productName}
       </h1>
 
@@ -150,15 +140,25 @@ export default function ProductPurchaseFlow({
 
       {/* 6. Product description */}
       {description && (
-        <p className="font-sans text-body font-normal leading-relaxed text-charcoal/80">
+        <p className="font-sans text-body font-normal leading-body text-charcoal/80">
           {description}
+        </p>
+      )}
+
+      {/* 6. Lace specifications */}
+      {laceType && (
+        <p className="font-label text-xs font-medium uppercase tracking-label text-bronze">
+          Lace Type:{" "}
+          <span className="font-sans normal-case tracking-normal text-charcoal/70">
+            {laceType}
+          </span>
         </p>
       )}
 
       {/* 7. Product options (color/size) */}
       {colors.length > 0 && (
         <div>
-          <p className="mb-2 font-sans text-xs uppercase tracking-[0.2em] text-bronze">
+          <p className="mb-2 font-label text-xs font-medium uppercase tracking-label text-bronze">
             Color
           </p>
           <div className="flex flex-wrap gap-2">
@@ -181,7 +181,7 @@ export default function ProductPurchaseFlow({
       )}
 
       <div>
-        <p className="mb-2 font-sans text-xs uppercase tracking-[0.2em] text-bronze">
+        <p className="mb-2 font-label text-xs font-medium uppercase tracking-label text-bronze">
           Size
         </p>
         <div className="flex flex-wrap gap-2">
@@ -238,9 +238,9 @@ export default function ProductPurchaseFlow({
           type="button"
           onClick={handleAddToCart}
           disabled={!inStock}
-          className={`h-14 w-full rounded-brand font-sans text-sm font-semibold uppercase tracking-brand transition ${
+          className={`flex h-[60px] w-full items-center justify-center rounded-button font-sans text-sm font-semibold uppercase tracking-brand transition ${
             inStock
-              ? "bg-charcoal text-white hover:bg-charcoal/90"
+              ? "bg-espresso text-ivory hover:bg-espresso/90"
               : "cursor-not-allowed border border-charcoal/20 bg-charcoal/5 text-charcoal/40"
           }`}
         >
@@ -250,10 +250,10 @@ export default function ProductPurchaseFlow({
           type="button"
           onClick={handleBuyNow}
           disabled={!inStock}
-          className={`h-14 w-full rounded-brand border font-sans text-sm font-semibold uppercase tracking-brand transition ${
+          className={`flex h-[60px] w-full items-center justify-center rounded-button font-sans text-sm font-semibold uppercase tracking-brand transition ${
             inStock
-              ? "border-charcoal text-charcoal hover:bg-charcoal hover:text-white"
-              : "cursor-not-allowed border-charcoal/20 bg-charcoal/5 text-charcoal/40"
+              ? "bg-bronze text-white hover:bg-bronze/90"
+              : "cursor-not-allowed border border-charcoal/20 bg-charcoal/5 text-charcoal/40"
           }`}
         >
           BUY NOW
@@ -263,35 +263,6 @@ export default function ProductPurchaseFlow({
       <p className="font-sans text-xs text-charcoal/60">
         Selling out weekly — restock before you run out!
       </p>
-
-      {/* 10. Product details */}
-      {(laceType || availableSizes || availableColors) && (
-        <div className="flex flex-col gap-2 border-t border-border pt-6">
-          <h2 className="font-heading text-lg font-semibold text-espresso">
-            Product Details
-          </h2>
-          <dl className="flex flex-col font-sans text-sm">
-            {laceType && (
-              <div className="flex justify-between gap-4 border-b border-border/60 py-2.5">
-                <dt className="text-charcoal/60">Lace Type</dt>
-                <dd className="text-right text-espresso">{laceType}</dd>
-              </div>
-            )}
-            {availableColors && (
-              <div className="flex justify-between gap-4 border-b border-border/60 py-2.5">
-                <dt className="text-charcoal/60">Color</dt>
-                <dd className="text-right text-espresso">{availableColors}</dd>
-              </div>
-            )}
-            {availableSizes && (
-              <div className="flex justify-between gap-4 py-2.5">
-                <dt className="text-charcoal/60">Lace Size</dt>
-                <dd className="text-right text-espresso">{availableSizes}</dd>
-              </div>
-            )}
-          </dl>
-        </div>
-      )}
     </div>
   );
 }

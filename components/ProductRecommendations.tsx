@@ -10,11 +10,11 @@ export default function ProductRecommendations({
   if (valid.length === 0) return null;
 
   return (
-    <div className="flex flex-col gap-3">
-      <h2 className="font-heading text-xl text-espresso">
-        Recommended Alternatives
+    <div className="mt-16 border-t border-blush pt-10 lg:mt-20">
+      <h2 className="font-heading text-2xl font-medium text-espresso">
+        You May Also Like
       </h2>
-      <ul className="flex flex-col gap-2">
+      <ul className="mt-6 flex flex-col gap-2">
         {valid.map((rec) => (
           <li key={rec.id} className="font-sans text-sm text-charcoal/80">
             {rec.reason_label ? `If ${rec.reason_label} → ` : ""}Choose{" "}

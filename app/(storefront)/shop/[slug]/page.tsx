@@ -1,9 +1,9 @@
 import Link from "next/link";
+import ProductDetailsTabs from "@/components/ProductDetailsTabs";
 import ProductGallery from "@/components/ProductGallery";
 import ProductPurchaseFlow from "@/components/ProductPurchaseFlow";
 import ProductRecommendations from "@/components/ProductRecommendations";
 import TrustBadges from "@/components/TrustBadges";
-import { WhyChooseList, WhyNotChooseList } from "@/components/ProductWhyLists";
 import ReviewsSection from "@/components/ReviewsSection";
 import {
   getApprovedReviews,
@@ -83,19 +83,35 @@ export default async function ProductDetailPage({
     recommendations = [];
   }
 
+  // Lace specs summary for the Details tab — built from real structured
+  // data only (lace_type, and the distinct size/color values already on
+  // the variants). No dedicated "material"/"thickness" columns exist yet,
+  // so those rows are omitted rather than guessed at from free text.
+  const availableSizes = Array.from(
+    new Set(product.product_variants.map((v) => v.size_label)),
+  ).join(", ");
+  const availableColors = Array.from(
+    new Set(
+      product.product_variants.flatMap((v) =>
+        v.product_variant_colors.map((c) => c.color_name),
+      ),
+    ),
+  ).join(", ");
+
   return (
     <main className="flex min-h-screen flex-1 flex-col bg-ivory py-20">
       {/*
         Mobile: single column, DOM order = required order (1. image,
-        2. thumbnails come from ProductGallery; 3-10 come from
-        ProductPurchaseFlow, which renders title/price/stock/description/
-        options/buttons/details internally in that exact sequence).
-        Desktop: grid splits into a 60/40 (3fr/2fr) two-column layout —
-        gallery only needs `lg:col-start-1`, everything else only needs
+        2. thumbnails come from ProductGallery; 3-9 come from
+        ProductPurchaseFlow, which renders title/price/description/specs/
+        options/buttons internally in that exact sequence; 10-11 are the
+        details tabs + related products below, full width on every size).
+        Desktop: the split section grids into 60/40 (3fr/2fr) — gallery
+        only needs `lg:col-start-1`, the purchase flow only needs
         `lg:col-start-2`; no per-item row placement needed since each
         column's content is already one contiguous DOM block.
       */}
-      <div className="mx-auto w-full max-w-content px-6 sm:px-12">
+      <div className="mx-auto w-full max-w-content px-6 lg:px-[60px]">
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[3fr_2fr] lg:items-start lg:gap-16">
           <div className="lg:col-start-1">
             <ProductGallery images={product.images} productName={product.name} />
@@ -113,24 +129,25 @@ export default async function ProductDetailPage({
             />
           </div>
         </div>
+
+        {/* 10. Product details tabs */}
+        <ProductDetailsTabs
+          laceType={product.lace_type}
+          availableColors={availableColors}
+          availableSizes={availableSizes}
+          whyChoose={product.why_choose}
+          whyNotChoose={product.why_not_choose}
+        />
+
+        {/* 11. Related products */}
+        <ProductRecommendations recommendations={recommendations} />
       </div>
 
       <TrustBadges />
 
-      {/* Why-choose/recommendations kept at their original narrow reading
-          width — unchanged in appearance, just repositioned below the new
-          two-column purchase area instead of the old single column. */}
-      <div className="mx-auto w-full max-w-2xl px-6 py-section md:py-section-md lg:py-section-lg">
-        <div className="flex flex-col gap-10">
-          <WhyChooseList points={product.why_choose} />
-          <WhyNotChooseList points={product.why_not_choose} />
-          <ProductRecommendations recommendations={recommendations} />
-        </div>
-      </div>
-
       <div
         id="reviews"
-        className="mx-auto w-full max-w-2xl border-t border-blush px-6 pt-12"
+        className="mx-auto w-full max-w-content border-t border-blush px-6 pt-12 lg:px-[60px]"
       >
         <div className="flex flex-col gap-10">
           <ReviewsSection reviews={reviews} productId={product.id} />

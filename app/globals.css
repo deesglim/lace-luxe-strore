@@ -18,15 +18,27 @@
   --color-border: #ece7e0; /* standard border color */
 
   /* Brand typography — logo/headings stay serif (Playfair Display for
-     headings, Cormorant Garamond for the logo specifically); nav, body,
-     buttons, and price all use Inter, differentiated by weight only
-     (font-weight-medium/semibold/bold, already built into Tailwind). */
+     headings, Cormorant Garamond for the logo specifically); body copy is
+     Inter; nav links and category/eyebrow-style labels use Montserrat
+     (font-label), differentiated from each other by tracking + size only. */
   --font-logo: var(--font-cormorant), "Cormorant Garamond", serif;
   --font-heading: var(--font-playfair), "Playfair Display", serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-label: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
 
-  /* Letter-spacing — apply to headings/nav/buttons, not body copy. */
+  /* Letter-spacing. tracking-brand is the legacy general-purpose value
+     (buttons, anything not migrated to a label/nav treatment yet);
+     tracking-label/tracking-nav are Montserrat-specific per the luxury
+     design system. */
   --tracking-brand: 0.5px;
+  --tracking-label: 3px;
+  --tracking-nav: 2px;
+
+  /* Line-height. Body copy is intentionally loose (1.7); the hero heading
+     needs an explicit tight override since it would otherwise inherit a
+     much looser default at that size. */
+  --leading-body: 1.7;
+  --leading-hero: 1.1;
 
   /* Font-size scale — mobile-first: the unprefixed token is the mobile
      value; combine with the matching -md (tablet, 768px+) / -lg (desktop,
@@ -34,20 +46,21 @@
      `text-hero md:text-hero-md lg:text-hero-lg`. Only defined per-tier
      where the source spec actually varies by breakpoint — flat sizes
      (body, small, nav, button) are a single token used at every size.
-     Collection Titles and Navigation only had a desktop value specified,
-     so those are single flat tokens for now too. */
-  --text-hero: 42px;
-  --text-hero-md: 56px;
+     Collection Title only had one size specified, so it stays a flat
+     token. */
+  --text-hero: 48px;
+  --text-hero-md: 60px;
   --text-hero-lg: 72px;
 
-  --text-section-title: 34px;
-  --text-section-title-md: 40px;
-  --text-section-title-lg: 48px;
+  --text-section-title: 36px;
+  --text-section-title-md: 42px;
+  --text-section-title-lg: 52px;
 
   --text-collection-title: 42px;
 
   --text-product-title: 28px;
-  --text-product-title-lg: 32px;
+  --text-product-title-md: 34px;
+  --text-product-title-lg: 40px;
 
   --text-price: 22px;
   --text-price-md: 24px;
@@ -55,26 +68,30 @@
 
   --text-body: 16px;
   --text-small: 14px;
-  --text-nav: 15px;
+  --text-nav: 14px;
   --text-button: 14px;
 
   /* Spacing scale — same mobile-first pattern as the font sizes above:
-     `py-section md:py-section-md lg:py-section-lg`. */
-  --spacing-section: 64px;
-  --spacing-section-md: 80px;
-  --spacing-section-lg: 120px;
+     `py-section md:py-section-md lg:py-section-lg`. Sections use a single
+     flat top/bottom padding at every size per the luxury design system
+     (the old three-tier ramp is dropped). Halved from 100px — the full
+     value stacked with adjacent sections' own padding into excessive gaps
+     between e.g. a product grid and the next section's heading. */
+  --spacing-section: 50px;
   --spacing-card: 24px;
 
-  /* Container widths. --container-content (1280px) is numerically the
-     same as Tailwind's built-in max-w-7xl; named explicitly here so it's
-     part of this design system rather than an unrelated generic scale
-     step. */
-  --container-content: 80rem; /* 1280px */
-  --container-page: 90rem; /* 1440px */
+  /* Container widths — 1400px everywhere the site defines a "max content
+     width" (header, footer, section wrappers all read from these two
+     tokens already, so setting both to 1400px keeps every call site in
+     sync without renaming classes). Side padding: 24px mobile / 60px
+     desktop, applied at point of use alongside these. */
+  --container-content: 87.5rem; /* 1400px */
+  --container-page: 87.5rem; /* 1400px */
 
-  /* Standard card/image/button radius — 8px, pairs with `border
-     border-border` for the "1px solid, 8px radius" standard. */
-  --radius-brand: 8px;
+  /* Card/image radius — 16px (was 8px). Buttons/inputs get their own,
+     smaller 12px radius instead of sharing this one. */
+  --radius-brand: 16px;
+  --radius-button: 12px;
 }
 
 body {

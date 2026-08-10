@@ -56,7 +56,7 @@ export default function ProductGallery({
                 key={image}
                 type="button"
                 onClick={() => setActiveIndex(index)}
-                className={`h-[88px] w-[70px] shrink-0 overflow-hidden rounded-brand border transition md:h-[100px] md:w-[80px] lg:h-[125px] lg:w-[100px] ${
+                className={`h-[88px] w-[70px] shrink-0 overflow-hidden rounded-lg border transition md:h-[112px] md:w-[90px] lg:h-[188px] lg:w-[150px] ${
                   index === activeIndex
                     ? "border-2 border-bronze"
                     : "border-border opacity-70 hover:border-bronze hover:opacity-100"

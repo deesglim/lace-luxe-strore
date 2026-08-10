@@ -6,8 +6,8 @@ export default function CustomerShowcaseSection({ items }: { items: ShowcaseItem
   if (items.length === 0) return null;
 
   return (
-    <section className="border-t border-blush py-section md:py-section-md lg:py-section-lg">
-      <h2 className="mb-10 text-center font-heading text-2xl text-espresso sm:text-3xl">
+    <section className="border-t border-blush py-section">
+      <h2 className="mb-10 text-center font-heading font-medium text-2xl text-espresso sm:text-3xl">
         Our Customers Are Obsessed
       </h2>
       <HorizontalScrollRow>

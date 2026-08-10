@@ -45,7 +45,7 @@ export default function NewsletterSignup() {
   return (
     <section className="border-t border-blush bg-ivory py-section md:py-section-md lg:py-section-lg">
       <div className="mx-auto flex w-full max-w-md flex-col items-center gap-4 px-6 text-center">
-        <h2 className="font-heading text-section-title font-bold tracking-brand text-espresso md:text-section-title-md lg:text-section-title-lg">
+        <h2 className="font-heading text-section-title font-medium text-espresso md:text-section-title-md lg:text-section-title-lg">
           Stay In The Loop
         </h2>
         <p className="font-sans text-body text-charcoal/70">

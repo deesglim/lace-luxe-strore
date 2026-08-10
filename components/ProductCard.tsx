@@ -2,21 +2,13 @@ import Link from "next/link";
 import type { ProductSummary } from "@/lib/products";
 import { formatNaira } from "@/lib/format";
 
-export default function ProductCard({
-  product,
-  className = "",
-  imageClassName = "aspect-[3/4] w-full",
-}: {
-  product: ProductSummary;
-  // Lets callers that place this inside a fixed-height wrapper (e.g. the
-  // horizontal scroll rows) pass "h-full" so the card fills it — a no-op
-  // for the plain wrapping grid, which doesn't need it.
-  className?: string;
-  // Default preserves the plain shop-grid card's proportional image.
-  // Carousel callers (BestSellersSection) pass a fixed small height instead,
-  // since a proportional image inside a fixed-height card eats most of it.
-  imageClassName?: string;
-}) {
+// The single shared product-card style used everywhere a product shows up
+// as an image+name+price tile (homepage Best Sellers, Shop page Lace
+// Collection, Shop page Best Sellers). Fixed size so every card is
+// identical regardless of which row it's in — the image gets whatever
+// height is left after the compact text block, so the photo dominates the
+// card rather than the text.
+export default function ProductCard({ product }: { product: ProductSummary }) {
   const cheapestVariant = product.product_variants.reduce<
     (typeof product.product_variants)[number] | null
   >((cheapest, variant) => {
@@ -32,17 +24,15 @@ export default function ProductCard({
   return (
     <Link
       href={`/shop/${product.slug}`}
-      className={`group flex flex-col overflow-hidden rounded-md border border-blush bg-ivory shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${className}`}
+      className="group flex h-[320px] w-[200px] flex-col overflow-hidden rounded-brand border border-espresso/[0.08] bg-ivory shadow-[0_8px_25px_rgba(0,0,0,0.04)] transition"
     >
-      <div className={`shrink-0 overflow-hidden bg-blush ${imageClassName}`}>
+      <div className="w-full flex-1 overflow-hidden bg-blush">
         {image ? (
-          // Plain <img> for now rather than next/image + remotePatterns;
-          // fine while the catalog is small, worth revisiting later.
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={image}
             alt={product.name}
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover transition duration-500 ease-out group-hover:scale-105"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
@@ -50,25 +40,28 @@ export default function ProductCard({
           </div>
         )}
       </div>
-      <div className="flex flex-1 flex-col gap-1 px-4 py-4 text-center">
+
+      <div className="flex shrink-0 flex-col gap-0.5 px-3 py-2.5">
         {product.lace_type && (
-          <p className="line-clamp-1 font-sans text-xs uppercase tracking-[0.3em] text-bronze">
+          <p className="line-clamp-1 font-label text-[11px] font-medium uppercase tracking-label text-bronze">
             {product.lace_type}
           </p>
         )}
-        <h3 className="line-clamp-2 min-h-[3.5rem] font-heading text-xl text-espresso">
+        <h3 className="line-clamp-1 font-heading text-[18px] font-medium text-espresso lg:text-[20px]">
           {product.name}
         </h3>
         {onSale && cheapestVariant ? (
-          <p className="mt-auto flex items-baseline justify-center gap-2 font-sans text-sm">
-            <span className="text-charcoal/40 line-through">
+          <p className="flex flex-wrap items-baseline gap-1.5">
+            <span className="font-sans text-xs text-charcoal/40 line-through">
               {formatNaira(cheapestVariant.compare_at_price!)}
             </span>
-            <span className="font-semibold text-bronze">{formatNaira(fromPrice!)}</span>
+            <span className="font-sans text-[18px] font-semibold text-bronze lg:text-[22px]">
+              {formatNaira(fromPrice!)}
+            </span>
           </p>
         ) : (
-          <p className="mt-auto font-sans text-sm text-charcoal/70">
-            {fromPrice !== null ? `From ${formatNaira(fromPrice)}` : "Price unavailable"}
+          <p className="font-sans text-[18px] font-semibold text-espresso lg:text-[22px]">
+            {fromPrice !== null ? formatNaira(fromPrice) : "Price unavailable"}
           </p>
         )}
       </div>

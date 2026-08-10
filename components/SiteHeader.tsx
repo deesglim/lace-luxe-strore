@@ -1,7 +1,7 @@
-import Link from "next/link";
 import AccountDropdown from "@/components/AccountDropdown";
 import AccountIcon from "@/components/AccountIcon";
 import CartIcon from "@/components/cart/CartIcon";
+import HeaderChrome from "@/components/HeaderChrome";
 import MobileNav from "@/components/MobileNav";
 import { getCurrentProfile } from "@/lib/auth";
 
@@ -17,30 +17,15 @@ export default async function SiteHeader() {
   const { user } = await getCurrentProfile();
 
   return (
-    <header className="border-b border-blush bg-ivory">
-      <div className="mx-auto flex max-w-page items-center justify-between px-6 py-4 sm:px-12">
-        <Link href="/" className="font-logo text-2xl font-semibold text-espresso">
-          Lace Luxe <span className="text-bronze">by Dee</span>
-        </Link>
-
-        <nav className="hidden items-center gap-3 md:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="rounded-md border border-charcoal/15 px-4 py-2 font-sans text-nav font-medium uppercase tracking-brand text-charcoal transition hover:border-bronze hover:bg-bronze/5 hover:text-bronze"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-1">
+    <HeaderChrome
+      navLinks={navLinks}
+      accountSlot={
+        <>
           {user ? <AccountDropdown /> : <AccountIcon isLoggedIn={false} />}
           <CartIcon />
           <MobileNav links={navLinks} />
-        </div>
-      </div>
-    </header>
+        </>
+      }
+    />
   );
 }

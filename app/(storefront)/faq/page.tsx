@@ -17,14 +17,6 @@ const FAQ_ITEMS: FaqItem[] = [
       "Nigeria: 2–7 business days. International: 5–21 business days depending on destination.",
   },
   {
-    question: "Can I order in bulk?",
-    answer: "Yes. Wholesale and bulk purchase options are available for eligible customers.",
-  },
-  {
-    question: "Do you offer wholesale pricing?",
-    answer: "Yes. Special pricing is available for bulk orders and resellers.",
-  },
-  {
     question: "How do I choose the right lace?",
     answer:
       "Our team can help you select the most suitable lace based on your desired finish, installation style, and budget.",
