@@ -32,16 +32,16 @@ export default function OfferCard({ offer }: { offer: BundleOfferForShop }) {
           {offer.name}
         </h3>
         {onSale ? (
-          <p className="flex flex-wrap items-baseline gap-1.5">
-            <span className="font-sans text-xs text-charcoal/40 line-through">
+          <p className="flex flex-col gap-0.5">
+            <span className="truncate font-sans text-xs text-charcoal/40 line-through">
               {formatNaira(offer.originalPrice)}
             </span>
-            <span className="font-sans text-[14px] font-semibold text-bronze lg:text-[16px]">
+            <span className="truncate font-sans text-[14px] font-semibold text-bronze lg:text-[16px]">
               {formatNaira(offer.bundle_price)}
             </span>
           </p>
         ) : (
-          <p className="font-sans text-[14px] font-semibold text-charcoal lg:text-[16px]">
+          <p className="truncate font-sans text-[14px] font-semibold text-charcoal lg:text-[16px]">
             {formatNaira(offer.bundle_price)}
           </p>
         )}

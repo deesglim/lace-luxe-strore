@@ -51,16 +51,16 @@ export default function ProductCard({ product }: { product: ProductSummary }) {
           {product.name}
         </h3>
         {onSale && cheapestVariant ? (
-          <p className="flex flex-wrap items-baseline gap-1.5">
-            <span className="font-sans text-xs text-charcoal/40 line-through">
+          <p className="flex flex-col gap-0.5">
+            <span className="truncate font-sans text-xs text-charcoal/40 line-through">
               {formatNaira(cheapestVariant.compare_at_price!)}
             </span>
-            <span className="font-sans text-[14px] font-semibold text-bronze lg:text-[16px]">
+            <span className="truncate font-sans text-[14px] font-semibold text-bronze lg:text-[16px]">
               {formatNaira(fromPrice!)}
             </span>
           </p>
         ) : (
-          <p className="font-sans text-[14px] font-semibold text-charcoal lg:text-[16px]">
+          <p className="truncate font-sans text-[14px] font-semibold text-charcoal lg:text-[16px]">
             {fromPrice !== null ? formatNaira(fromPrice) : "Price unavailable"}
           </p>
         )}
