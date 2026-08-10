@@ -8,7 +8,7 @@ export default function OfferCard({ offer }: { offer: BundleOfferForShop }) {
   return (
     <Link
       href={`/shop/offers/${offer.id}`}
-      className="group flex h-[320px] w-[200px] flex-col overflow-hidden rounded-brand border border-espresso/[0.08] bg-ivory shadow-[0_8px_25px_rgba(0,0,0,0.04)] transition"
+      className="group flex h-[320px] w-full flex-col overflow-hidden rounded-brand border border-espresso/[0.08] bg-ivory shadow-[0_8px_25px_rgba(0,0,0,0.04)] transition sm:w-[200px]"
     >
       <div className="w-full flex-1 overflow-hidden bg-blush">
         {offer.image_url ? (

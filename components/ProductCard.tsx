@@ -4,11 +4,22 @@ import { formatNaira } from "@/lib/format";
 
 // The single shared product-card style used everywhere a product shows up
 // as an image+name+price tile (homepage Best Sellers, Shop page Lace
-// Collection, Shop page Best Sellers). Fixed size so every card is
-// identical regardless of which row it's in — the image gets whatever
-// height is left after the compact text block, so the photo dominates the
-// card rather than the text.
-export default function ProductCard({ product }: { product: ProductSummary }) {
+// Collection, Shop page Best Sellers). Fixed 200px width by default — right
+// for the horizontal-scroll rows this was designed for, where each card
+// needs a real, unchanging size. Grid callers (Shop page, Best Sellers
+// grid layout) pass `fluid` instead: at the 2-column mobile breakpoint the
+// grid track itself is narrower than 200px, so a fixed-width card there
+// overflows its track and collides with its neighbor — `fluid` lets the
+// card fill whatever width its track actually has below `sm`, then locks
+// back to the normal 200px from `sm` up, where every track is already
+// wide enough.
+export default function ProductCard({
+  product,
+  fluid = false,
+}: {
+  product: ProductSummary;
+  fluid?: boolean;
+}) {
   const cheapestVariant = product.product_variants.reduce<
     (typeof product.product_variants)[number] | null
   >((cheapest, variant) => {
@@ -24,7 +35,9 @@ export default function ProductCard({ product }: { product: ProductSummary }) {
   return (
     <Link
       href={`/shop/${product.slug}`}
-      className="group flex h-[320px] w-[200px] flex-col overflow-hidden rounded-brand border border-espresso/[0.08] bg-ivory shadow-[0_8px_25px_rgba(0,0,0,0.04)] transition"
+      className={`group flex h-[320px] flex-col overflow-hidden rounded-brand border border-espresso/[0.08] bg-ivory shadow-[0_8px_25px_rgba(0,0,0,0.04)] transition ${
+        fluid ? "w-full sm:w-[200px]" : "w-[200px]"
+      }`}
     >
       <div className="w-full flex-1 overflow-hidden bg-blush">
         {image ? (
