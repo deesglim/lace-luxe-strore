@@ -55,7 +55,7 @@ export default function CheckoutForm({
   initialCustomer: CheckoutInitialCustomer | null;
 }) {
   const router = useRouter();
-  const { items, subtotal } = useCart();
+  const { items, subtotal, hydrated } = useCart();
   const isLoggedIn = initialCustomer !== null;
 
   const [fullName, setFullName] = useState(initialCustomer?.fullName ?? "");
@@ -77,10 +77,16 @@ export default function CheckoutForm({
   const [codeError, setCodeError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (items.length === 0) {
+    // Wait for the cart to actually finish loading from localStorage
+    // before treating it as empty — items starts as [] on every mount
+    // (to match SSR) even when a real cart is about to hydrate in a
+    // moment, e.g. on a hard refresh or a direct link straight to
+    // /checkout. Redirecting on that transient empty state would kick
+    // out a customer who has real items waiting.
+    if (hydrated && items.length === 0) {
       router.replace("/shop");
     }
-  }, [items.length, router]);
+  }, [hydrated, items.length, router]);
 
   const groupedDelivery = groupDeliveryOptionsByCategory(deliveryOptions);
   const selectedDelivery = deliveryOptions.find(

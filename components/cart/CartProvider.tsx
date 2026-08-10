@@ -29,6 +29,12 @@ type CartContextValue = {
   items: CartItem[];
   itemCount: number;
   subtotal: number;
+  // False until the initial localStorage read completes. Consumers that
+  // redirect away on an empty cart (checkout) must wait for this — items
+  // starts as [] on every mount (matching SSR) before hydrating, so
+  // treating that as "genuinely empty" would kick out anyone whose cart
+  // hadn't loaded yet.
+  hydrated: boolean;
   isDrawerOpen: boolean;
   openDrawer: () => void;
   closeDrawer: () => void;
@@ -220,6 +226,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     items,
     itemCount,
     subtotal,
+    hydrated,
     isDrawerOpen,
     openDrawer: () => setIsDrawerOpen(true),
     closeDrawer: () => setIsDrawerOpen(false),
