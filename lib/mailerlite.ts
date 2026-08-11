@@ -15,6 +15,13 @@ type UpsertSubscriberParams = {
   name?: string | null;
   phone?: string | null;
   groupId: string;
+  // Any additional custom fields beyond name/phone (e.g. cart_items,
+  // cart_total, cart_item_count for the checkout-started sync), merged
+  // into the same `fields` object MailerLite receives. Each key must
+  // already exist as a custom field in the MailerLite account — MailerLite
+  // silently ignores values for fields it doesn't recognize rather than
+  // creating them on the fly.
+  fields?: Record<string, string | number>;
 };
 
 /**
@@ -36,6 +43,7 @@ export async function upsertMailerLiteSubscriber({
   name,
   phone,
   groupId,
+  fields,
 }: UpsertSubscriberParams): Promise<string | null> {
   const apiKey = getApiKey();
   if (!apiKey) {
@@ -56,6 +64,7 @@ export async function upsertMailerLiteSubscriber({
         fields: {
           ...(name ? { name } : {}),
           ...(phone ? { phone } : {}),
+          ...fields,
         },
         groups: [groupId],
       }),

@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getAllBundleOffersAdmin } from "@/lib/bundleOffers";
 import { getStoreSettingsAdmin } from "@/lib/deliveryOptions";
 import { pickBestDeal } from "@/lib/discount";
+import { formatNaira } from "@/lib/format";
 import { initializePaystackTransaction } from "@/lib/paystack";
 import { upsertMailerLiteSubscriber } from "@/lib/mailerlite";
 import { checkPromoCodeEligibility } from "@/lib/promoRedemptions";
@@ -95,6 +96,9 @@ export async function POST(request: NextRequest) {
     price: number;
     productId: string;
     laceType: string | null;
+    productName: string | null;
+    sizeLabel: string | null;
+    colorName: string | null;
   };
   const resolvedItems: ResolvedItem[] = [];
 
@@ -109,7 +113,7 @@ export async function POST(request: NextRequest) {
 
     const { data: variant, error: variantError } = await supabaseAdmin
       .from("product_variants")
-      .select("id, price, stock_quantity, product_id, products(name, lace_type)")
+      .select("id, price, stock_quantity, product_id, size_label, products(name, lace_type)")
       .eq("id", rawItem.variantId)
       .maybeSingle();
 
@@ -127,11 +131,12 @@ export async function POST(request: NextRequest) {
     const itemLabel = productRow?.name ?? "One of the items in your cart";
 
     let availableStock = variant.stock_quantity;
+    let colorName: string | null = null;
 
     if (rawItem.colorId) {
       const { data: color, error: colorError } = await supabaseAdmin
         .from("product_variant_colors")
-        .select("id, stock_quantity, variant_id")
+        .select("id, stock_quantity, variant_id, color_name")
         .eq("id", rawItem.colorId)
         .maybeSingle();
 
@@ -140,6 +145,7 @@ export async function POST(request: NextRequest) {
         return badRequest("One of the items in your cart is no longer available.");
       }
       availableStock = color.stock_quantity;
+      colorName = color.color_name;
     }
 
     if (rawItem.quantity > availableStock) {
@@ -157,6 +163,9 @@ export async function POST(request: NextRequest) {
       price: variant.price,
       productId: variant.product_id,
       laceType: productRow?.lace_type ?? null,
+      productName: productRow?.name ?? null,
+      sizeLabel: variant.size_label ?? null,
+      colorName,
     });
   }
 
@@ -328,14 +337,32 @@ export async function POST(request: NextRequest) {
   // Marketing sync — anyone who reaches this point (guest or logged-in)
   // gets tracked as having started checkout, so an abandoned-cart sequence
   // can be built directly in MailerLite for orders that never reach
-  // "paid". Never blocks/fails checkout, see lib/mailerlite.ts.
+  // "paid". Never blocks/fails checkout, see lib/mailerlite.ts. Cart
+  // contents are included as custom fields so the abandoned-cart email can
+  // show real product details — cart_items/cart_total/cart_item_count must
+  // already exist as custom fields in the MailerLite account, or
+  // MailerLite silently drops them rather than creating them on the fly.
   const checkoutStartedGroupId = process.env.MAILERLITE_GROUP_CHECKOUT_STARTED;
   if (checkoutStartedGroupId) {
+    const cartItemsSummary = resolvedItems
+      .map((item) => {
+        const variant = [item.sizeLabel, item.colorName].filter(Boolean).join(", ");
+        const name = item.productName ?? "Item";
+        return `${name}${variant ? ` (${variant})` : ""} x${item.quantity}`;
+      })
+      .join("\n");
+    const cartItemCount = resolvedItems.reduce((sum, item) => sum + item.quantity, 0);
+
     await upsertMailerLiteSubscriber({
       email: contactEmail,
       name: customer.fullName,
       phone: customer.phone,
       groupId: checkoutStartedGroupId,
+      fields: {
+        cart_items: cartItemsSummary,
+        cart_total: formatNaira(total),
+        cart_item_count: cartItemCount,
+      },
     });
   }
 
