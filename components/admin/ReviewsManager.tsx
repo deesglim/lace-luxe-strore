@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactNode } from "react";
+import { friendlyAdminErrorMessage } from "@/lib/adminErrors";
 import { createClient } from "@/lib/supabase/client";
 import type { AdminReview } from "@/lib/reviews";
 
@@ -176,7 +177,7 @@ export default function ReviewsManager({
 
       const mapped = data ? mapRow(data) : null;
       if (updateError || !mapped) {
-        setError(updateError?.message ?? "Could not save changes.");
+        setError(friendlyAdminErrorMessage(updateError, "Could not save changes."));
         setSaving(false);
         return;
       }
@@ -191,7 +192,7 @@ export default function ReviewsManager({
 
       const mapped = data ? mapRow(data) : null;
       if (insertError || !mapped) {
-        setError(insertError?.message ?? "Could not add review.");
+        setError(friendlyAdminErrorMessage(insertError, "Could not add review."));
         setSaving(false);
         return;
       }
@@ -213,7 +214,7 @@ export default function ReviewsManager({
       .eq("id", review.id);
 
     if (updateError) {
-      setError(updateError.message);
+      setError(friendlyAdminErrorMessage(updateError, "Could not update review."));
       setPendingId(null);
       return;
     }
@@ -236,7 +237,7 @@ export default function ReviewsManager({
     const { error: deleteError } = await supabase.from("reviews").delete().eq("id", review.id);
 
     if (deleteError) {
-      setError(deleteError.message);
+      setError(friendlyAdminErrorMessage(deleteError, "Could not delete review."));
       setPendingId(null);
       return;
     }

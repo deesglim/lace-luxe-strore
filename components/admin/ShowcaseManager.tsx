@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent, type ReactNode } from "react";
 import MediaUploader, { type MediaItem } from "@/components/admin/MediaUploader";
+import { friendlyAdminErrorMessage } from "@/lib/adminErrors";
 import { getShowcaseMediaStoragePath } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/client";
 import type { AdminShowcaseItem, ShowcaseMediaType } from "@/lib/showcase";
@@ -218,7 +219,7 @@ export default function ShowcaseManager({
         .single();
 
       if (updateError || !data) {
-        setError(updateError?.message ?? "Could not save changes.");
+        setError(friendlyAdminErrorMessage(updateError, "Could not save changes."));
         setSaving(false);
         return;
       }
@@ -233,7 +234,7 @@ export default function ShowcaseManager({
         .single();
 
       if (insertError || !data) {
-        setError(insertError?.message ?? "Could not add item.");
+        setError(friendlyAdminErrorMessage(insertError, "Could not add item."));
         setSaving(false);
         return;
       }
@@ -264,7 +265,7 @@ export default function ShowcaseManager({
       .eq("id", item.id);
 
     if (deleteError) {
-      setError(deleteError.message);
+      setError(friendlyAdminErrorMessage(deleteError, "Could not delete item."));
       return;
     }
 

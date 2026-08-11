@@ -90,6 +90,7 @@ export type Order = {
   payment_reference: string | null;
   payment_status: "pending" | "paid" | "failed";
   tracking_note: string | null;
+  order_note: string | null;
   created_at: string;
 };
 

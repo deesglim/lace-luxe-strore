@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent, type ReactNode } from "react";
 import ImageUploader, { type ImageItem } from "@/components/admin/ImageUploader";
+import { friendlyAdminErrorMessage } from "@/lib/adminErrors";
 import type { BundleOfferWithItems } from "@/lib/bundles";
 import { formatNaira } from "@/lib/format";
 import type { ProductVariantOption } from "@/lib/products";
@@ -366,7 +367,7 @@ export default function BundlesManager({
         .eq("id", bundleId);
 
       if (updateError) {
-        setError(updateError.message);
+        setError(friendlyAdminErrorMessage(updateError, "Could not save changes."));
         setSaving(false);
         return;
       }
@@ -378,7 +379,7 @@ export default function BundlesManager({
         .single();
 
       if (insertError || !data) {
-        setError(insertError?.message ?? "Could not create bundle.");
+        setError(friendlyAdminErrorMessage(insertError, "Could not create bundle."));
         setSaving(false);
         return;
       }
@@ -393,7 +394,7 @@ export default function BundlesManager({
       .eq("bundle_offer_id", bundleId);
 
     if (deleteItemsError) {
-      setError(deleteItemsError.message);
+      setError(friendlyAdminErrorMessage(deleteItemsError, "Could not save changes."));
       setSaving(false);
       return;
     }
@@ -410,7 +411,7 @@ export default function BundlesManager({
       );
 
       if (insertItemsError) {
-        setError(insertItemsError.message);
+        setError(friendlyAdminErrorMessage(insertItemsError, "Could not save changes."));
         setSaving(false);
         return;
       }
@@ -431,8 +432,10 @@ export default function BundlesManager({
 
     if (refetchError || !refreshed) {
       setError(
-        refetchError?.message ??
+        friendlyAdminErrorMessage(
+          refetchError,
           "Saved, but couldn't refresh the list — reload to see changes.",
+        ),
       );
       setSaving(false);
       return;
@@ -462,7 +465,7 @@ export default function BundlesManager({
       .eq("id", bundle.id);
 
     if (deleteError) {
-      setError(deleteError.message);
+      setError(friendlyAdminErrorMessage(deleteError, "Could not delete bundle."));
       return;
     }
 

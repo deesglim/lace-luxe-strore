@@ -75,6 +75,8 @@ export default function CheckoutForm({
   const [promoCodeInput, setPromoCodeInput] = useState("");
   const [appliedCode, setAppliedCode] = useState<string | null>(null);
   const [codeError, setCodeError] = useState<string | null>(null);
+  const [checkingCode, setCheckingCode] = useState(false);
+  const [orderNote, setOrderNote] = useState("");
 
   useEffect(() => {
     // Wait for the cart to actually finish loading from localStorage
@@ -111,10 +113,12 @@ export default function CheckoutForm({
   const deal = pickBestDeal(promotions, bundles, discountItems, appliedCode);
   const total = subtotal - deal.amount + deliveryFee;
 
-  function handleApplyCode() {
+  async function handleApplyCode() {
     const trimmed = promoCodeInput.trim();
     if (!trimmed) return;
 
+    // Cheap local check first — matches the promotions already loaded on
+    // this page, no round trip needed for a code that's obviously wrong.
     const matched = findPromotionByCode(promotions, trimmed);
     if (!matched) {
       setCodeError("That code isn't valid or has expired.");
@@ -122,8 +126,34 @@ export default function CheckoutForm({
       return;
     }
 
+    // A code can look valid locally but still be blocked for this specific
+    // customer (already redeemed) — that can only be known server-side, so
+    // check live right here rather than letting it surface for the first
+    // time at final submission. Hits the exact same eligibility check
+    // /api/checkout runs before charging, so this can't disagree with it.
     setCodeError(null);
-    setAppliedCode(trimmed);
+    setCheckingCode(true);
+    try {
+      const response = await fetch("/api/checkout/check-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: trimmed }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        setCodeError(data.error ?? "That code isn't valid or has expired.");
+        setAppliedCode(null);
+        return;
+      }
+
+      setAppliedCode(trimmed);
+    } catch {
+      setCodeError("Could not check that code. Please try again.");
+      setAppliedCode(null);
+    } finally {
+      setCheckingCode(false);
+    }
   }
 
   // Once free shipping kicks in, every delivery option is free — the
@@ -171,6 +201,7 @@ export default function CheckoutForm({
           password: createAccount ? password : undefined,
           deliveryOptionId,
           promoCode: appliedCode,
+          orderNote: orderNote.trim() || null,
         }),
       });
 
@@ -194,195 +225,202 @@ export default function CheckoutForm({
   }
 
   return (
-    <main className="flex min-h-screen flex-1 flex-col bg-ivory px-6 py-20 lg:px-[60px]">
+    <main className="flex min-h-screen flex-1 flex-col bg-ivory px-6 pt-6 pb-20 sm:pt-8 lg:px-[60px] lg:pt-10">
       <div className="mx-auto w-full max-w-5xl">
         <Link
           href="/cart"
-          className="mb-6 inline-block font-sans text-xs uppercase tracking-[0.2em] text-bronze underline underline-offset-4"
+          className="mb-2 inline-block font-sans text-xs uppercase tracking-[0.2em] text-bronze underline underline-offset-4"
         >
           ← Back to Cart
         </Link>
-        <h1 className="mb-10 font-heading text-3xl font-medium text-espresso">Checkout</h1>
+        <h1 className="mb-6 font-heading text-3xl font-medium text-espresso">Checkout</h1>
 
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1fr_380px]">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-12">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] lg:gap-12">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6 lg:gap-8">
             {error && (
               <p className="rounded-md border border-bronze bg-blush/40 px-4 py-3 font-sans text-sm text-espresso">
                 {error}
               </p>
             )}
 
-            <div className="flex flex-col gap-4">
-              <h2 className="font-heading text-xl text-espresso">Contact</h2>
-              <Field label="Full Name">
-                <input
-                  required
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className={inputClass}
-                />
-              </Field>
-              <Field label="Email">
-                <input
-                  required
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={inputClass}
-                />
-              </Field>
-              <Field label="Phone">
-                <input
-                  required
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className={inputClass}
-                />
-              </Field>
-            </div>
+            <div className="rounded-brand border border-blush bg-ivory p-6 shadow-[0_8px_25px_rgba(0,0,0,0.04)]">
+              <div className="flex flex-col divide-y divide-blush">
+                <div className="flex flex-col gap-4 pb-6 sm:pb-7">
+                  <h2 className="font-heading text-2xl font-medium text-espresso">
+                    Contact
+                  </h2>
+                  <Field label="Full Name">
+                    <input
+                      required
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className={inputClass}
+                    />
+                  </Field>
+                  <Field label="Email">
+                    <input
+                      required
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className={inputClass}
+                    />
+                  </Field>
+                  <Field label="Phone">
+                    <input
+                      required
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className={inputClass}
+                    />
+                  </Field>
+                </div>
 
-            <div className="flex flex-col gap-4">
-              <h2 className="font-heading text-xl text-espresso">
-                Shipping Address
-              </h2>
-              <Field label="Address Line">
-                <input
-                  required
-                  value={addressLine}
-                  onChange={(e) => setAddressLine(e.target.value)}
-                  className={inputClass}
-                />
-              </Field>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <Field label="City">
-                  <input
-                    required
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className={inputClass}
-                  />
-                </Field>
-                <Field label="State">
-                  <input
-                    required
-                    value={state}
-                    onChange={(e) => setState(e.target.value)}
-                    className={inputClass}
-                  />
-                </Field>
-              </div>
-              <p className="font-sans text-xs text-charcoal/60">
-                We currently deliver within Nigeria only.
-              </p>
-            </div>
+                <div className="flex flex-col gap-4 py-6 sm:py-7">
+                  <h2 className="font-heading text-2xl font-medium text-espresso">
+                    Shipping Address
+                  </h2>
+                  <Field label="Address Line">
+                    <input
+                      required
+                      value={addressLine}
+                      onChange={(e) => setAddressLine(e.target.value)}
+                      className={inputClass}
+                    />
+                  </Field>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <Field label="City">
+                      <input
+                        required
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        className={inputClass}
+                      />
+                    </Field>
+                    <Field label="State">
+                      <input
+                        required
+                        value={state}
+                        onChange={(e) => setState(e.target.value)}
+                        className={inputClass}
+                      />
+                    </Field>
+                  </div>
+                  <p className="font-sans text-xs text-charcoal/60">
+                    We currently deliver within Nigeria only.
+                  </p>
+                </div>
 
-            <div className="flex flex-col gap-4">
-              {deliveryNotice && (
-                <p className="rounded-md border border-blush bg-blush/20 px-4 py-3 font-sans text-xs leading-relaxed text-charcoal/70">
-                  {deliveryNotice}
-                </p>
-              )}
+                <div className="flex flex-col gap-4 pt-6 sm:pt-7">
+                  {deliveryNotice && (
+                    <p className="rounded-md border border-blush bg-blush/20 px-4 py-3 font-sans text-xs leading-relaxed text-charcoal/70">
+                      {deliveryNotice}
+                    </p>
+                  )}
 
-              <h2 className="font-heading text-xl text-espresso">
-                Delivery Method
-              </h2>
+                  <h2 className="font-heading text-2xl font-medium text-espresso">
+                    Delivery Method
+                  </h2>
 
-              {freeShippingApplied && (
-                <p className="font-sans text-sm text-espresso">
-                  🎉 You&apos;ve unlocked free shipping — choose any method
-                  below at no charge.
-                </p>
-              )}
+                  {freeShippingApplied && (
+                    <p className="font-sans text-sm text-espresso">
+                      🎉 You&apos;ve unlocked free shipping — choose any
+                      method below at no charge.
+                    </p>
+                  )}
 
-              <div className="flex flex-col gap-3">
-                {groupedDelivery.map((group) => {
-                  const isOpen = activeCategory === group.category;
-                  const isSelected = selectedDelivery?.category === group.category;
-                  const isSinglePickup =
-                    group.category === "pickup" && group.options.length === 1;
-                  const showDrilldown = isOpen && !isSinglePickup;
+                  <div className="flex flex-col gap-3">
+                    {groupedDelivery.map((group) => {
+                      const isOpen = activeCategory === group.category;
+                      const isSelected =
+                        selectedDelivery?.category === group.category;
+                      const isSinglePickup =
+                        group.category === "pickup" && group.options.length === 1;
+                      const showDrilldown = isOpen && !isSinglePickup;
 
-                  return (
-                    <div key={group.category} className="flex flex-col gap-2">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleCategoryClick(group.category, group.options)
-                        }
-                        className={`flex cursor-pointer items-center justify-between gap-3 rounded-button border px-4 py-3 text-left font-sans text-sm transition ${
-                          isOpen || isSelected
-                            ? "border-espresso bg-espresso/5"
-                            : "border-charcoal/20 hover:border-bronze"
-                        }`}
-                      >
-                        <span className="min-w-0 truncate text-charcoal">
-                          {CHECKOUT_CATEGORY_LABELS[group.category] ?? group.label}
-                        </span>
-                        {isSelected && selectedDelivery ? (
-                          <span className="shrink-0 whitespace-nowrap text-xs text-espresso">
-                            {selectedDelivery.name} ·{" "}
-                            {displayPrice(selectedDelivery)}
-                          </span>
-                        ) : (
-                          <span className="shrink-0 whitespace-nowrap text-xs text-charcoal/40">
-                            {isSinglePickup
-                              ? displayPrice(group.options[0])
-                              : "Select"}
-                          </span>
-                        )}
-                      </button>
+                      return (
+                        <div key={group.category} className="flex flex-col gap-2">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleCategoryClick(group.category, group.options)
+                            }
+                            className={`flex cursor-pointer items-center justify-between gap-3 rounded-button border px-4 py-3 text-left font-sans text-sm transition ${
+                              isOpen || isSelected
+                                ? "border-espresso bg-espresso/5"
+                                : "border-charcoal/20 hover:border-bronze"
+                            }`}
+                          >
+                            <span className="min-w-0 truncate text-charcoal">
+                              {CHECKOUT_CATEGORY_LABELS[group.category] ?? group.label}
+                            </span>
+                            {isSelected && selectedDelivery ? (
+                              <span className="shrink-0 whitespace-nowrap text-xs text-espresso">
+                                {selectedDelivery.name} ·{" "}
+                                {displayPrice(selectedDelivery)}
+                              </span>
+                            ) : (
+                              <span className="shrink-0 whitespace-nowrap text-xs text-charcoal/40">
+                                {isSinglePickup
+                                  ? displayPrice(group.options[0])
+                                  : "Select"}
+                              </span>
+                            )}
+                          </button>
 
-                      {showDrilldown && (
-                        <div className="ml-2 flex flex-col gap-2">
-                          {group.options.map((option) => {
-                            const selected = option.id === deliveryOptionId;
-                            return (
-                              <label
-                                key={option.id}
-                                className={`flex cursor-pointer items-center justify-between gap-3 rounded-button border px-4 py-3 font-sans text-sm transition ${
-                                  selected
-                                    ? "border-espresso bg-espresso/5"
-                                    : "border-charcoal/20 hover:border-bronze"
-                                }`}
-                              >
-                                <span className="flex min-w-0 items-center gap-3">
-                                  <input
-                                    type="radio"
-                                    name="delivery-option"
-                                    checked={selected}
-                                    onChange={() => setDeliveryOptionId(option.id)}
-                                    className="h-4 w-4 shrink-0 accent-espresso"
-                                  />
-                                  <span className="flex min-w-0 flex-col">
-                                    <span className="truncate text-charcoal">
-                                      {option.name}
-                                    </span>
-                                    {(option.delivery_time || option.description) && (
-                                      <span className="text-xs text-charcoal/60">
-                                        {[option.delivery_time, option.description]
-                                          .filter(Boolean)
-                                          .join(" · ")}
+                          {showDrilldown && (
+                            <div className="ml-2 flex flex-col gap-2">
+                              {group.options.map((option) => {
+                                const selected = option.id === deliveryOptionId;
+                                return (
+                                  <label
+                                    key={option.id}
+                                    className={`flex cursor-pointer items-center justify-between gap-3 rounded-button border px-4 py-3 font-sans text-sm transition ${
+                                      selected
+                                        ? "border-espresso bg-espresso/5"
+                                        : "border-charcoal/20 hover:border-bronze"
+                                    }`}
+                                  >
+                                    <span className="flex min-w-0 items-center gap-3">
+                                      <input
+                                        type="radio"
+                                        name="delivery-option"
+                                        checked={selected}
+                                        onChange={() => setDeliveryOptionId(option.id)}
+                                        className="h-4 w-4 shrink-0 accent-espresso"
+                                      />
+                                      <span className="flex min-w-0 flex-col">
+                                        <span className="truncate text-charcoal">
+                                          {option.name}
+                                        </span>
+                                        {(option.delivery_time || option.description) && (
+                                          <span className="text-xs text-charcoal/60">
+                                            {[option.delivery_time, option.description]
+                                              .filter(Boolean)
+                                              .join(" · ")}
+                                          </span>
+                                        )}
                                       </span>
-                                    )}
-                                  </span>
-                                </span>
-                                <span className="shrink-0 whitespace-nowrap text-espresso">
-                                  {displayPrice(option)}
-                                </span>
-                              </label>
-                            );
-                          })}
+                                    </span>
+                                    <span className="shrink-0 whitespace-nowrap text-espresso">
+                                      {displayPrice(option)}
+                                    </span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
 
             {!isLoggedIn && (
-              <div className="flex flex-col gap-3 border-t border-blush pt-6">
+              <div className="flex flex-col gap-3">
                 <p className="font-sans text-sm text-charcoal">
                   Already have an account?{" "}
                   <Link
@@ -420,6 +458,22 @@ export default function CheckoutForm({
                 )}
               </div>
             )}
+
+            <div className="flex flex-col gap-2">
+              <span className="font-label text-xs font-medium uppercase tracking-label text-bronze">
+                Order Note (Optional)
+              </span>
+              <p className="font-sans text-xs text-charcoal/60">
+                Any special instructions? E.g. how you&apos;d like your lace
+                prepped.
+              </p>
+              <textarea
+                value={orderNote}
+                onChange={(e) => setOrderNote(e.target.value)}
+                rows={3}
+                className="rounded-button border border-charcoal/15 bg-ivory px-4 py-3 font-sans text-sm text-charcoal focus:border-espresso focus:outline-none"
+              />
+            </div>
 
             <button
               type="submit"
@@ -495,10 +549,10 @@ export default function CheckoutForm({
                     <button
                       type="button"
                       onClick={handleApplyCode}
-                      disabled={!promoCodeInput.trim()}
+                      disabled={!promoCodeInput.trim() || checkingCode}
                       className="h-14 shrink-0 rounded-button border border-espresso px-4 font-sans text-xs uppercase tracking-[0.15em] text-espresso transition hover:bg-espresso hover:text-ivory disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      Apply
+                      {checkingCode ? "Checking…" : "Apply"}
                     </button>
                   </div>
                   {codeError && (

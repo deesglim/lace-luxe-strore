@@ -179,6 +179,17 @@ export default async function AdminOrderDetailPage({
             )}
           </div>
 
+          {order.order_note && (
+            <div className="border border-blush p-6">
+              <h2 className="mb-3 font-heading text-lg text-espresso">
+                Order Note
+              </h2>
+              <p className="whitespace-pre-line font-sans text-sm leading-relaxed text-charcoal/80">
+                {order.order_note}
+              </p>
+            </div>
+          )}
+
           <div className="border border-blush p-6">
             <h2 className="mb-3 font-heading text-lg text-espresso">
               Order Info

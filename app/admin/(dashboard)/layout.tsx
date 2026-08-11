@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
+import AdminSessionGuard from "@/components/admin/AdminSessionGuard";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import SignOutButton from "@/components/admin/SignOutButton";
 import { getCurrentProfile } from "@/lib/auth";
@@ -32,6 +33,7 @@ export default async function AdminDashboardLayout({
 
   return (
     <div className="flex min-h-screen flex-col bg-ivory sm:flex-row">
+      <AdminSessionGuard adminUserId={user.id} />
       <AdminSidebar />
       <main className="flex-1 px-6 py-10 sm:px-10">{children}</main>
     </div>

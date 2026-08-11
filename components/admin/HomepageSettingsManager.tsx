@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import ImageUploader, { type ImageItem } from "@/components/admin/ImageUploader";
+import { friendlyAdminErrorMessage } from "@/lib/adminErrors";
 import { getProductImageStoragePath } from "@/lib/storage";
 import { createClient } from "@/lib/supabase/client";
 import type { StoreSettings } from "@/types";
@@ -118,7 +119,7 @@ export default function HomepageSettingsManager({
         .eq("id", settingsId);
 
       if (updateError) {
-        setError(updateError.message);
+        setError(friendlyAdminErrorMessage(updateError, "Could not save changes."));
         setSaving(false);
         return;
       }
@@ -130,7 +131,7 @@ export default function HomepageSettingsManager({
         .single();
 
       if (insertError || !data) {
-        setError(insertError?.message ?? "Could not save settings.");
+        setError(friendlyAdminErrorMessage(insertError, "Could not save settings."));
         setSaving(false);
         return;
       }

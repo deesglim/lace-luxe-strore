@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent, type ReactNode } from "react";
+import { friendlyAdminErrorMessage } from "@/lib/adminErrors";
 import { createClient } from "@/lib/supabase/client";
 import { slugify } from "@/lib/slugify";
 import { getProductImageStoragePath } from "@/lib/storage";
@@ -562,9 +563,9 @@ export default function ProductForm({
         router.refresh();
       }, 700);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Something went wrong while saving.",
-      );
+      const errorLike =
+        err && typeof err === "object" ? (err as { code?: string; message?: string }) : null;
+      setError(friendlyAdminErrorMessage(errorLike, "Something went wrong while saving."));
       setSaving(false);
     }
   }
@@ -585,7 +586,7 @@ export default function ProductForm({
       .eq("id", product.id);
 
     if (deleteError) {
-      setError(deleteError.message);
+      setError(friendlyAdminErrorMessage(deleteError, "Could not delete product."));
       setSaving(false);
       return;
     }

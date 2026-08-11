@@ -64,7 +64,7 @@ export async function getOrderWithItems(orderId: string): Promise<OrderWithItems
   const { data: order, error: orderError } = await supabase
     .from("orders")
     .select(
-      "id, customer_id, guest_email, status, subtotal, discount_amount, promotion_id, bundle_id, delivery_option_id, delivery_fee, total, shipping_address, payment_reference, payment_status, tracking_note, created_at, delivery_options(name, category, delivery_time), promotions(code), bundle_offers(name)",
+      "id, customer_id, guest_email, status, subtotal, discount_amount, promotion_id, bundle_id, delivery_option_id, delivery_fee, total, shipping_address, payment_reference, payment_status, tracking_note, order_note, created_at, delivery_options(name, category, delivery_time), promotions(code), bundle_offers(name)",
     )
     .eq("id", orderId)
     .maybeSingle();

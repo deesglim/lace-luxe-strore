@@ -178,6 +178,17 @@ export default async function CheckoutSuccessPage({
           </div>
         )}
 
+        {order.order_note && (
+          <div className="rounded-md border border-blush bg-ivory p-6">
+            <h2 className="mb-2 font-heading text-xl text-espresso">
+              Order Note
+            </h2>
+            <p className="whitespace-pre-line font-sans text-sm leading-relaxed text-charcoal/80">
+              {order.order_note}
+            </p>
+          </div>
+        )}
+
         <div className="rounded-md border border-blush bg-blush/20 p-6 text-center">
           <h2 className="mb-2 font-heading text-lg text-espresso">
             What happens next

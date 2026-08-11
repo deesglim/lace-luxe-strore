@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { friendlyAdminErrorMessage } from "@/lib/adminErrors";
 import { createClient } from "@/lib/supabase/client";
 import type { AdminAnnouncement } from "@/lib/announcements";
 
@@ -88,7 +89,7 @@ export default function AnnouncementsManager({
         .single();
 
       if (updateError || !data) {
-        setError(updateError?.message ?? "Could not save changes.");
+        setError(friendlyAdminErrorMessage(updateError, "Could not save changes."));
         setSaving(false);
         return;
       }
@@ -114,7 +115,7 @@ export default function AnnouncementsManager({
         .single();
 
       if (insertError || !data) {
-        setError(insertError?.message ?? "Could not add announcement.");
+        setError(friendlyAdminErrorMessage(insertError, "Could not add announcement."));
         setSaving(false);
         return;
       }
@@ -138,7 +139,7 @@ export default function AnnouncementsManager({
       .eq("id", item.id);
 
     if (deleteError) {
-      setError(deleteError.message);
+      setError(friendlyAdminErrorMessage(deleteError, "Could not delete announcement."));
       return;
     }
 
@@ -165,7 +166,7 @@ export default function AnnouncementsManager({
     ]);
 
     if (err1 || err2) {
-      setError(err1?.message ?? err2?.message ?? "Could not reorder.");
+      setError(friendlyAdminErrorMessage(err1 ?? err2, "Could not reorder."));
       return;
     }
 

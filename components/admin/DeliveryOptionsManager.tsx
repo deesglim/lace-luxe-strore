@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactNode } from "react";
+import { friendlyAdminErrorMessage } from "@/lib/adminErrors";
 import {
   DELIVERY_CATEGORY_LABELS,
   groupDeliveryOptionsByCategory,
@@ -143,7 +144,7 @@ export default function DeliveryOptionsManager({
         .single();
 
       if (updateError || !data) {
-        setError(updateError?.message ?? "Could not save changes.");
+        setError(friendlyAdminErrorMessage(updateError, "Could not save changes."));
         setSaving(false);
         return;
       }
@@ -159,7 +160,7 @@ export default function DeliveryOptionsManager({
         .single();
 
       if (insertError || !data) {
-        setError(insertError?.message ?? "Could not create delivery option.");
+        setError(friendlyAdminErrorMessage(insertError, "Could not create delivery option."));
         setSaving(false);
         return;
       }
@@ -183,7 +184,7 @@ export default function DeliveryOptionsManager({
       .eq("id", option.id);
 
     if (deleteError) {
-      setError(deleteError.message);
+      setError(friendlyAdminErrorMessage(deleteError, "Could not delete delivery option."));
       return;
     }
 
@@ -207,7 +208,7 @@ export default function DeliveryOptionsManager({
         .eq("id", settingsId);
 
       if (updateError) {
-        setError(updateError.message);
+        setError(friendlyAdminErrorMessage(updateError, "Could not save changes."));
         setSavingNotice(false);
         return;
       }
@@ -219,7 +220,7 @@ export default function DeliveryOptionsManager({
         .single();
 
       if (insertError || !data) {
-        setError(insertError?.message ?? "Could not save settings.");
+        setError(friendlyAdminErrorMessage(insertError, "Could not save settings."));
         setSavingNotice(false);
         return;
       }

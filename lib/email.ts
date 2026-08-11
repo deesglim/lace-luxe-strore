@@ -57,6 +57,36 @@ function renderAddress(address: ShippingAddress | null): string {
     .join("<br />");
 }
 
+// order_note is free text the customer typed themselves — unlike the other
+// values interpolated in these templates (names/addresses come from account
+// data, not raw user input at send time), so it's escaped before going into
+// the email HTML.
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+// Shared by the customer confirmation and admin alert emails — renders
+// nothing at all when there's no note, so no empty "Order Note" section
+// ever shows up.
+function renderNoteSection(label: string, note: string | null): string {
+  if (!note) return "";
+  return `
+    <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e7d3c8;">
+      <p style="color: #9c6b3f; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 8px;">
+        ${label}
+      </p>
+      <p style="color: #2b2b2b; font-size: 14px; line-height: 1.6; margin: 0;">
+        ${escapeHtml(note).replace(/\n/g, "<br />")}
+      </p>
+    </div>
+  `;
+}
+
 function buildOrderConfirmationHtml(
   order: Order,
   items: OrderItemDetail[],
@@ -127,6 +157,8 @@ function buildOrderConfirmationHtml(
             ${renderAddress(order.shipping_address)}
           </p>
         </div>
+
+        ${renderNoteSection("Order Note", order.order_note)}
 
         <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e7d3c8;">
           <p style="color: #2b2b2b; font-size: 13px; line-height: 1.6; margin: 0;">
@@ -249,6 +281,8 @@ function buildAdminNotificationHtml(
             ${renderAddress(order.shipping_address)}
           </p>
         </div>
+
+        ${renderNoteSection("Order Note", order.order_note)}
       </div>
     </div>
   </div>

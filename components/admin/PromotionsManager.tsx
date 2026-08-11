@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactNode } from "react";
+import { friendlyAdminErrorMessage } from "@/lib/adminErrors";
 import { formatNaira } from "@/lib/format";
 import { createClient } from "@/lib/supabase/client";
 import type { Promotion } from "@/types";
@@ -177,7 +178,7 @@ export default function PromotionsManager({
         .single();
 
       if (updateError || !data) {
-        setError(updateError?.message ?? "Could not save changes.");
+        setError(friendlyAdminErrorMessage(updateError, "Could not save changes."));
         setSaving(false);
         return;
       }
@@ -198,7 +199,7 @@ export default function PromotionsManager({
           message.toLowerCase().includes("duplicate") ||
             message.toLowerCase().includes("unique")
             ? "That code is already in use by another promotion."
-            : message || "Could not create promotion.",
+            : friendlyAdminErrorMessage(insertError, "Could not create promotion."),
         );
         setSaving(false);
         return;
@@ -223,7 +224,7 @@ export default function PromotionsManager({
       .eq("id", promotion.id);
 
     if (deleteError) {
-      setError(deleteError.message);
+      setError(friendlyAdminErrorMessage(deleteError, "Could not delete promotion."));
       return;
     }
 

@@ -1,8 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getAllBundleOffersAdmin } from "@/lib/bundleOffers";
 import { getStoreSettingsAdmin } from "@/lib/deliveryOptions";
-import { findPromotionByCode, pickBestDeal } from "@/lib/discount";
+import { pickBestDeal } from "@/lib/discount";
 import { initializePaystackTransaction } from "@/lib/paystack";
+import { checkPromoCodeEligibility } from "@/lib/promoRedemptions";
 import { getAllPromotionsAdmin } from "@/lib/promotions";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -30,6 +31,7 @@ type CheckoutRequestBody = {
   password?: string;
   deliveryOptionId: string;
   promoCode?: string | null;
+  orderNote?: string | null;
 };
 
 function badRequest(message: string) {
@@ -44,7 +46,8 @@ export async function POST(request: NextRequest) {
     return badRequest("Invalid request body.");
   }
 
-  const { items, customer, createAccount, password, deliveryOptionId, promoCode } = body;
+  const { items, customer, createAccount, password, deliveryOptionId, promoCode, orderNote } =
+    body;
 
   if (!Array.isArray(items) || items.length === 0) {
     return badRequest("Your cart is empty.");
@@ -204,23 +207,14 @@ export async function POST(request: NextRequest) {
   // same as every other "never trust the client" check in this route.
   const trimmedPromoCode = promoCode?.trim() || null;
   if (trimmedPromoCode) {
-    if (!existingUser) {
-      return badRequest("Please log in to use a discount code.");
-    }
-
-    const matchedPromotion = findPromotionByCode(promotions, trimmedPromoCode);
-    if (matchedPromotion) {
-      const { data: existingRedemption, error: redemptionLookupError } = await supabaseAdmin
-        .from("promo_redemptions")
-        .select("id")
-        .eq("promotion_id", matchedPromotion.id)
-        .eq("customer_id", existingUser.id)
-        .maybeSingle();
-
-      if (redemptionLookupError) throw redemptionLookupError;
-      if (existingRedemption) {
-        return badRequest("You've already used this discount code.");
-      }
+    const eligibility = await checkPromoCodeEligibility(
+      supabaseAdmin,
+      promotions,
+      trimmedPromoCode,
+      existingUser?.id ?? null,
+    );
+    if (!eligibility.ok) {
+      return badRequest(eligibility.error);
     }
   }
 
@@ -298,6 +292,7 @@ export async function POST(request: NextRequest) {
       total,
       shipping_address: shippingAddress,
       payment_status: "pending",
+      order_note: orderNote?.trim() || null,
     })
     .select("id")
     .single();
