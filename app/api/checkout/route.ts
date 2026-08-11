@@ -3,6 +3,7 @@ import { getAllBundleOffersAdmin } from "@/lib/bundleOffers";
 import { getStoreSettingsAdmin } from "@/lib/deliveryOptions";
 import { pickBestDeal } from "@/lib/discount";
 import { initializePaystackTransaction } from "@/lib/paystack";
+import { upsertMailerLiteSubscriber } from "@/lib/mailerlite";
 import { checkPromoCodeEligibility } from "@/lib/promoRedemptions";
 import { getAllPromotionsAdmin } from "@/lib/promotions";
 import { createClient } from "@/lib/supabase/server";
@@ -322,6 +323,20 @@ export async function POST(request: NextRequest) {
       { error: "Could not create your order. Please try again." },
       { status: 500 },
     );
+  }
+
+  // Marketing sync — anyone who reaches this point (guest or logged-in)
+  // gets tracked as having started checkout, so an abandoned-cart sequence
+  // can be built directly in MailerLite for orders that never reach
+  // "paid". Never blocks/fails checkout, see lib/mailerlite.ts.
+  const checkoutStartedGroupId = process.env.MAILERLITE_GROUP_CHECKOUT_STARTED;
+  if (checkoutStartedGroupId) {
+    await upsertMailerLiteSubscriber({
+      email: contactEmail,
+      name: customer.fullName,
+      phone: customer.phone,
+      groupId: checkoutStartedGroupId,
+    });
   }
 
   try {

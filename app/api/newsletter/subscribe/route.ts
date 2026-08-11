@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { sendWelcomeEmail } from "@/lib/email";
+import { upsertMailerLiteSubscriber } from "@/lib/mailerlite";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -45,6 +46,13 @@ export async function POST(request: NextRequest) {
     // Don't fail the signup over email delivery — the subscription is
     // already correctly recorded.
     console.error("Failed to send newsletter welcome email", emailError);
+  }
+
+  const newsletterGroupId = process.env.MAILERLITE_GROUP_NEWSLETTER;
+  if (newsletterGroupId) {
+    // Marketing sync — never blocks/fails the signup response, see
+    // lib/mailerlite.ts's own error handling.
+    await upsertMailerLiteSubscriber({ email, groupId: newsletterGroupId });
   }
 
   return NextResponse.json({ alreadySubscribed: false });

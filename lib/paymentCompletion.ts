@@ -1,4 +1,8 @@
 import { sendAdminOrderNotificationEmail, sendOrderConfirmationEmail } from "@/lib/email";
+import {
+  removeMailerLiteSubscriberFromGroup,
+  upsertMailerLiteSubscriber,
+} from "@/lib/mailerlite";
 import { getOrderWithItems } from "@/lib/orders";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -119,6 +123,31 @@ export async function completeOrderPayment(
     });
   } catch (adminEmailError) {
     console.error("Failed to send admin order notification email", adminEmailError);
+  }
+
+  // Marketing sync — now that this customer has actually paid, move them
+  // into the Customers group and out of Checkout Started, so they stop
+  // receiving abandoned-cart follow-ups for a cart they already checked
+  // out of. Never blocks/fails order completion, see lib/mailerlite.ts.
+  if (customerEmail) {
+    const customersGroupId = process.env.MAILERLITE_GROUP_CUSTOMERS;
+    const checkoutStartedGroupId = process.env.MAILERLITE_GROUP_CHECKOUT_STARTED;
+
+    if (customersGroupId) {
+      const subscriberId = await upsertMailerLiteSubscriber({
+        email: customerEmail,
+        name: orderWithItems.shipping_address?.full_name ?? null,
+        phone: orderWithItems.shipping_address?.phone ?? null,
+        groupId: customersGroupId,
+      });
+
+      if (subscriberId && checkoutStartedGroupId) {
+        await removeMailerLiteSubscriberFromGroup({
+          subscriberId,
+          groupId: checkoutStartedGroupId,
+        });
+      }
+    }
   }
 
   // The atomic pending->paid claim above already guarantees this whole
