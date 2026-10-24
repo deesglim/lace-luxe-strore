@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
     // production (next build), where this cache doesn't exist.
     serverComponentsHmrCache: false,
   },
+  // Hair Service Pricing Guide: a standalone calculator page served from
+  // public/pricing-guide.html at the clean URL /pricing-guide.
+  async rewrites() {
+    return [{ source: "/pricing-guide", destination: "/pricing-guide.html" }];
+  },
 };
 
 export default nextConfig;
