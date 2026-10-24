@@ -10,10 +10,16 @@ const nextConfig: NextConfig = {
     // production (next build), where this cache doesn't exist.
     serverComponentsHmrCache: false,
   },
-  // Hair Service Pricing Guide: a standalone calculator page served from
-  // public/pricing-guide.html at the clean URL /pricing-guide.
-  async rewrites() {
-    return [{ source: "/pricing-guide", destination: "/pricing-guide.html" }];
+  // Hair Service Pricing Guide: a paid calculator served from a private,
+  // hard-to-guess address (public/hsg-7t1kc9qw.html) and kept out of search
+  // engines. Temporary until the calculator moves behind customer login.
+  async headers() {
+    return [
+      {
+        source: "/hsg-7t1kc9qw.html",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+    ];
   },
 };
 
