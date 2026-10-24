@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 // other admin list queries. Paginates through every user rather than
 // looking each one up individually — a handful of admin API calls beats
 // N calls for N customers.
-async function getEmailsByUserId(): Promise<Map<string, string>> {
+export async function getEmailsByUserId(): Promise<Map<string, string>> {
   const supabaseAdmin = createAdminClient();
   const emailById = new Map<string, string>();
   const perPage = 200;

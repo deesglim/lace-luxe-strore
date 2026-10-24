@@ -556,3 +556,40 @@ export async function sendContactFormNotificationEmail(params: {
     html: buildContactFormNotificationHtml(params),
   });
 }
+
+export async function sendPricingGuideAccessEmail(params: {
+  toEmail: string;
+  name: string | null;
+}): Promise<void> {
+  const resend = getResendClient();
+  const siteUrl = getSiteUrl();
+  const greeting = params.name ? `Hi ${params.name},` : "Hi,";
+
+  await resend.emails.send({
+    from: `Deesglim <${getFromEmail()}>`,
+    to: params.toEmail,
+    subject: "Your Hair Service Pricing Guide is ready",
+    html: `
+  <div style="background-color: #f7f3ee; padding: 40px 20px; font-family: Arial, sans-serif;">
+    <div style="max-width: 480px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e7d3c8;">
+      <div style="padding: 32px 24px;">
+        <p style="color: #2b2b2b; font-size: 14px; line-height: 1.6; margin: 0 0 16px;">${greeting}</p>
+        <p style="color: #2b2b2b; font-size: 14px; line-height: 1.6; margin: 0 0 16px;">
+          Thank you for buying the Hair Service Pricing Guide. Your calculator is ready.
+        </p>
+        <p style="color: #2b2b2b; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">
+          Sign in with this email address at the link below, then tap <b>Open your calculator</b>.
+          It works on up to two devices at a time.
+        </p>
+        <p style="margin: 0 0 24px;">
+          <a href="${siteUrl}/pricing-guide" style="display: inline-block; background-color: #3a2f2a; color: #ffffff; padding: 12px 24px; text-decoration: none; font-size: 13px; letter-spacing: 0.15em; text-transform: uppercase;">Open the guide</a>
+        </p>
+        <p style="color: #2b2b2b; font-size: 13px; line-height: 1.6; margin: 0;">
+          The step-by-step user guide (PDF) is on the same page.
+        </p>
+      </div>
+    </div>
+  </div>
+  `,
+  });
+}

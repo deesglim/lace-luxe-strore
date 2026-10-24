@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { completeOrderPayment } from "@/lib/paymentCompletion";
+import { confirmPricingGuidePayment } from "@/lib/pricingGuide";
 import { verifyPaystackSignature, verifyPaystackTransaction } from "@/lib/paystack";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -64,6 +65,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Lookup failed" }, { status: 500 });
     }
     if (!order) {
+      // Not a store order — it may be a Hair Service Pricing Guide purchase,
+      // whose reference is the purchase id.
+      try {
+        const guideResult = await confirmPricingGuidePayment(reference, verified);
+        if (guideResult === "amount_mismatch") {
+          return NextResponse.json({ error: "Amount mismatch" }, { status: 400 });
+        }
+        if (guideResult !== "not_found") {
+          return NextResponse.json({ received: true });
+        }
+      } catch {
+        return NextResponse.json({ error: "Lookup failed" }, { status: 500 });
+      }
       // Nothing matches this reference — acknowledge so Paystack doesn't
       // keep retrying an event we'll never be able to resolve.
       return NextResponse.json({ received: true });
@@ -96,6 +110,12 @@ export async function POST(request: NextRequest) {
       .update({ payment_status: "failed" })
       .eq("id", reference)
       .neq("payment_status", "paid");
+
+    await supabaseAdmin
+      .from("pricing_guide_purchases")
+      .update({ status: "failed" })
+      .eq("id", reference)
+      .eq("status", "pending");
 
     return NextResponse.json({ received: true });
   }

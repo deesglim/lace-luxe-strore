@@ -16,6 +16,7 @@ const links = [
   { href: "/admin/newsletter", label: "Newsletter" },
   { href: "/admin/reviews", label: "Reviews" },
   { href: "/admin/showcase", label: "Showcase" },
+  { href: "/admin/pricing-guide", label: "Pricing Guide" },
 ];
 
 export default function AdminSidebar() {

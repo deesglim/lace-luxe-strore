@@ -35,7 +35,14 @@ export default function SignupPage() {
         return;
       }
 
-      router.push("/account");
+      // Send the customer back where they came from (e.g. the pricing guide),
+      // only ever within this site.
+      const redirectTo = new URLSearchParams(window.location.search).get("redirect");
+      const safeTarget =
+        redirectTo && redirectTo.startsWith("/") && !redirectTo.startsWith("//")
+          ? redirectTo
+          : "/account";
+      router.push(safeTarget);
       router.refresh();
     } catch {
       setError("Could not create your account. Please try again.");

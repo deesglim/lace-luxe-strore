@@ -110,7 +110,10 @@ export default function LoginForm({ redirectTo }: { redirectTo?: string }) {
 
         <p className="mt-8 text-center font-sans text-sm text-charcoal/70">
           New here?{" "}
-          <Link href="/signup" className="text-bronze underline underline-offset-4">
+          <Link
+            href={redirectTo ? `/signup?redirect=${encodeURIComponent(safeRedirectTarget(redirectTo))}` : "/signup"}
+            className="text-bronze underline underline-offset-4"
+          >
             Create an account
           </Link>
         </p>
