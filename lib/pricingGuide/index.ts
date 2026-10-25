@@ -1,10 +1,38 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { CALCULATOR_HTML } from "@/lib/pricingGuide/calculatorHtml";
 
-/** Price in naira. Set PRICING_GUIDE_PRICE_NAIRA in Vercel to change it. */
+/**
+ * Launch pricing. During the sale the guide costs SALE_PRICE until
+ * SALE_ENDS_AT (Lagos time), then it switches to REGULAR_PRICE on its own —
+ * checkout always charges whatever getPricingGuidePrice() returns at that
+ * moment, so the countdown on the page and the amount charged can't disagree.
+ */
+export const PRICING_GUIDE_REGULAR_PRICE = 12000;
+export const PRICING_GUIDE_SALE_PRICE = 7500;
+export const PRICING_GUIDE_SALE_ENDS_AT = "2026-11-30T23:59:59+01:00";
+
+export type PricingGuidePricing = {
+  regularPrice: number;
+  salePrice: number;
+  saleEndsAt: string;
+  onSale: boolean;
+  currentPrice: number;
+};
+
+export function getPricingGuidePricing(now: Date = new Date()): PricingGuidePricing {
+  const onSale = now.getTime() < new Date(PRICING_GUIDE_SALE_ENDS_AT).getTime();
+  return {
+    regularPrice: PRICING_GUIDE_REGULAR_PRICE,
+    salePrice: PRICING_GUIDE_SALE_PRICE,
+    saleEndsAt: PRICING_GUIDE_SALE_ENDS_AT,
+    onSale,
+    currentPrice: onSale ? PRICING_GUIDE_SALE_PRICE : PRICING_GUIDE_REGULAR_PRICE,
+  };
+}
+
+/** The price a buyer is charged right now, in naira. */
 export function getPricingGuidePrice(): number {
-  const fromEnv = Number(process.env.PRICING_GUIDE_PRICE_NAIRA);
-  return Number.isFinite(fromEnv) && fromEnv > 0 ? fromEnv : 7500;
+  return getPricingGuidePricing().currentPrice;
 }
 
 /** How many devices a buyer can have the calculator open on at once. */
